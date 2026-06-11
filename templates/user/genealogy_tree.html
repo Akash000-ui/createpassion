@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% block title %}My Network{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─ Overall wrapper ─────────────────────────────────── */
+.network-section { overflow-x: auto; padding: 1.5rem 1rem 2.5rem; }
+
+/* ─ Level strip: horizontal scrollable row ──────────── */
+.level-strip {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;          /* NO wrap — scroll sideways instead */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: max-content;     /* force single row */
+    margin: 0 auto;
+}
+
+/* vertical connector between root and children row */
+.v-connector {
+    width: 2px;
+    background: #cbd5e1;
+    margin: 0 auto;
+}
+
+/* horizontal bar across all siblings */
+.h-bar {
+    height: 2px;
+    background: #cbd5e1;
+    margin: 0 auto;
+    min-width: max-content;
+}
+
+/* tick down from h-bar to each card */
+.tick-down {
+    width: 2px;
+    height: 16px;
+    background: #cbd5e1;
+    margin: 0 auto;
+}
+
+/* ─ Node card ───────────────────────────────────────── */
+.net-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    width: 158px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.net-card.is-link {
+    cursor: pointer;
+    transition: box-shadow .2s, border-color .2s, transform .15s;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+}
+.net-card.is-link:hover {
+    box-shadow: 0 6px 22px rgba(0,0,0,.15);
+    border-color: #c9a84c;
+    transform: translateY(-3px);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* rank borders */
+.net-card.rank-CEM { border-color: #c9a84c; }
+.net-card.rank-FEM { border-color: #4c9ac9; }
+.net-card.rank-FA  { border-color: #5fad6e; }
+.net-card.rank-FC  { border-color: #9c6cd1; }
+.net-card.rank-BH  { border-color: #e67e22; }
+.net-card.rank-BA  { border-color: #e74c3c; }
+.net-card.rank-RT  { border-color: #9ca3af; }
+
+/* ─ Avatar ──────────────────────────────────────────── */
+.net-av {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 700; color: #fff;
+    margin: 0 auto 8px;
+}
+.av-CEM { background: #c9a84c; }
+.av-FEM { background: #4c9ac9; }
+.av-FA  { background: #5fad6e; }
+.av-FC  { background: #9c6cd1; }
+.av-BH  { background: #e67e22; }
+.av-BA  { background: #e74c3c; }
+.av-RT  { background: #9ca3af; }
+
+.net-name  { font-size: .78rem; font-weight: 700; color: #1a1a2e; line-height: 1.2; margin-bottom: 3px; word-break: break-word; }
+.net-mid   { font-size: .67rem; color: #6b7280; margin-bottom: 5px; }
+
+.rank-badge {
+    font-size: .62rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    display: inline-block; margin-bottom: 4px; color: #fff;
+}
+.rb-CEM { background: #c9a84c; color: #000; }
+.rb-FEM { background: #4c9ac9; }
+.rb-FA  { background: #5fad6e; }
+.rb-FC  { background: #9c6cd1; }
+.rb-BH  { background: #e67e22; }
+.rb-BA  { background: #e74c3c; }
+.rb-RT  { background: #9ca3af; }
+
+.net-stat { font-size: .66rem; color: #6b7280; margin-top: 3px; }
+
+/* YOU badge */
+.you-badge {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: #c9a84c; color: #000;
+    font-size: .6rem; font-weight: 700;
+    padding: 1px 10px; border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* "click to view team" hint */
+.view-hint {
+    margin-top: 8px;
+    font-size: .65rem;
+    color: #6b7280;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 2px 10px;
+    display: inline-block;
+}
+
+/* legend dot */
+.leg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+/* ─ Ancestry breadcrumb strip ───────────────────────── */
+.ancestry-strip {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 4px; font-size: .8rem;
+}
+.ancestry-strip a { color: #c9a84c; text-decoration: none; font-weight: 600; }
+.ancestry-strip a:hover { text-decoration: underline; }
+.ancestry-sep { color: #9ca3af; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'user_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">My Network</li>
+        </ol>
+    </nav>
+
+    {% include 'partials/messages.html' %}
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-diagram-3 me-2 text-warning"></i>My Network Tree
+            </h4>
+            <p class="text-muted small mb-2">Click any member to view their team.</p>
+
+            <!-- Ancestry navigation -->
+            {% if ancestry or not is_own_tree %}
+            <div class="ancestry-strip">
+                <a href="{% url 'genealogy_tree' %}"><i class="bi bi-house-fill me-1"></i>My Tree</a>
+                {% for anc in ancestry %}
+                <span class="ancestry-sep">›</span>
+                <a href="{% url 'genealogy_tree_node' anc.id %}">{{ anc.name }}</a>
+                {% endfor %}
+                {% if not is_own_tree %}
+                <span class="ancestry-sep">›</span>
+                <span class="fw-semibold text-dark">{{ root.name }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Legend -->
+        <div class="d-flex flex-wrap gap-3 small text-muted">
+            <span><span class="leg-dot me-1" style="background:#c9a84c;"></span>CEM (42%)</span>
+            <span><span class="leg-dot me-1" style="background:#4c9ac9;"></span>FEM (39%)</span>
+            <span><span class="leg-dot me-1" style="background:#5fad6e;"></span>FA (30%)</span>
+            <span><span class="leg-dot me-1" style="background:#9c6cd1;"></span>FC (21%)</span>
+            <span><span class="leg-dot me-1" style="background:#e67e22;"></span>BH (43%)</span>
+            <span><span class="leg-dot me-1" style="background:#e74c3c;"></span>BA (44%)</span>
+            <span><span class="leg-dot me-1" style="background:#9ca3af;"></span>RT (11%)</span>
+        </div>
+    </div>
+
+    <!-- Tree card -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-3">
+            <div class="network-section">
+
+                <!-- ROOT NODE -->
+                <div class="d-flex justify-content-center mb-0">
+                    <div class="net-card rank-{{ root.rank }}" style="width:168px;">
+                        {% if is_own_tree %}<span class="you-badge">YOU</span>{% endif %}
+                        <div class="net-av av-{{ root.rank }}">{{ root.initials }}</div>
+                        <div class="net-name">{{ root.name }}</div>
+                        <div class="net-mid">{{ root.member_id }}</div>
+                        <span class="rank-badge rb-{{ root.rank }}">{{ root.rank }}</span><br>
+                        {% if root.commission %}<div class="net-stat">{{ root.commission }}% commission</div>{% endif %}
+                        <div class="net-stat"><i class="bi bi-people-fill"></i> {{ root.direct_count }} direct{{ root.direct_count|pluralize }}</div>
+                    </div>
+                </div>
+
+                <!-- LEVEL 1: direct children -->
+                {% if children %}
+
+                <!-- vertical connector from root down -->
+                <div class="v-connector" style="height:28px;"></div>
+
+                <!-- horizontal bar spanning children -->
+                <div style="overflow-x:auto;">
+                    <div style="min-width:max-content;">
+
+                        {% if children|length > 1 %}
+                        <div class="h-bar" style="width:calc(100% - 80px); margin-left:40px;"></div>
+                        {% endif %}
+
+                        <!-- children row -->
+                        <div class="level-strip">
+                            {% for child in children %}
+                            <div class="d-flex flex-column align-items-center" style="flex-shrink:0;">
+                                <!-- tick down from h-bar -->
+                                <div class="tick-down"></div>
+
+                                {% if child.direct_count > 0 %}
+                                <!-- Clickable: navigate to this node's tree -->
+                                <a href="{% url 'genealogy_tree_node' child.id %}"
+                                   class="net-card rank-{{ child.rank }} is-link">
+                                    <div class="net-av av-{{ child.rank }}">{{ child.initials }}</div>
+                                    <div class="net-name">{{ child.name }}</div>
+                                    <div class="net-mid">{{ child.member_id }}</div>
+                                    <span class="rank-badge rb-{{ child.rank }}">{{ child.rank }}</span><br>
+                                    {% if child.commission %}<div class="net-stat">{{ child.commission }}% commission</div>{% endif %}
+                                    <div class="net-stat"><i class="bi bi-people-fill"></i> {{ child.direct_count }} direct{{ child.direct_count|pluralize }}</div>
+                                    <span class="view-hint"><i class="bi bi-diagram-3 me-1"></i>View Team</span>
+                                </a>
+                                {% else %}
+                                <!-- Non-clickable: no children -->
+                                <div class="net-card rank-{{ child.rank }}">
+                                    <div class="net-av av-{{ child.rank }}">{{ child.initials }}</div>
+                                    <div class="net-name">{{ child.name }}</div>
+                                    <div class="net-mid">{{ child.member_id }}</div>
+                                    <span class="rank-badge rb-{{ child.rank }}">{{ child.rank }}</span><br>
+                                    {% if child.commission %}<div class="net-stat">{{ child.commission }}% commission</div>{% endif %}
+                                    <div class="net-stat text-muted"><i class="bi bi-people-fill"></i> 0 directs</div>
+                                </div>
+                                {% endif %}
+
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- No children -->
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-people fs-1 d-block mb-2 opacity-25"></i>
+                    <p class="mb-0">
+                        {% if is_own_tree %}
+                            You have no direct team members yet.
+                        {% else %}
+                            {{ root.name }} has no direct team members.
+                        {% endif %}
+                    </p>
+                    {% if not is_own_tree %}
+                    <a href="{% url 'genealogy_tree' %}" class="btn btn-sm btn-outline-dark mt-3">
+                        <i class="bi bi-arrow-left me-1"></i> Back to My Tree
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            </div><!-- /network-section -->
+        </div>
+    </div>
+
+</div>
+{% endblock %}

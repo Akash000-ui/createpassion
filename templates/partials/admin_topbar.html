@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-secondary px-3 py-2 shadow-sm">
+    <button class="btn btn-sm btn-outline-light me-3" id="sidebarToggle">
+        <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <span class="navbar-text fw-semibold text-white">
+        {% block page_title %}Dashboard{% endblock %}
+    </span>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+        {% comment %} <a href="/admin_inbox" class="text-white text-decoration-none">
+            <i class="bi bi-envelope fs-5"></i>
+        </a> {% endcomment %}
+        <div class="dropdown">
+            <a href="#" class="text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle fs-5 me-1"></i>
+                <span class="d-none d-md-inline">Admin</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/admin_dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/admin_logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

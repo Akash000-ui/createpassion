@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Add Money to Wallet{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+
+      <div class="d-flex align-items-center mb-4 gap-3">
+        <a href="{% url 'user_wallet' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <h4 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2"></i>Add Money to Wallet</h4>
+      </div>
+
+      <!-- Bank Details Info -->
+      <div class="alert alert-info d-flex gap-3 mb-4">
+        <i class="bi bi-info-circle-fill fs-5 flex-shrink-0 mt-1"></i>
+        <div>
+          <strong>How to top up:</strong> Transfer money to our bank account, then submit the UTR/Transaction number
+          and upload the receipt screenshot here. Admin will verify and credit your wallet within 24 hours.
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-send me-1"></i> Submit Top-up Request
+        </div>
+        <div class="card-body p-4">
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">UTR / Transaction Number <span class="text-danger">*</span></label>
+              <input type="text" name="utr_number" class="form-control"
+                     placeholder="e.g. 428329018274" required>
+              <div class="form-text">Enter the UTR or reference number from your bank transfer.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Amount (₹) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input type="number" name="amount" class="form-control"
+                       placeholder="e.g. 500" min="1" step="1" required>
+              </div>
+              <div class="form-text">Enter the exact amount you transferred.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Payment Receipt / Screenshot <span class="text-danger">*</span></label>
+              <input type="file" name="receipt_image" class="form-control"
+                     accept=".jpg,.jpeg,.png,.webp" required>
+              <div class="form-text">Upload a screenshot of your payment confirmation (JPG/PNG/WEBP, max 5MB).</div>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-dark btn-lg fw-semibold">
+                <i class="bi bi-send me-1"></i> Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

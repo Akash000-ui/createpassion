@@ -1,0 +1,76 @@
+{% extends 'admin_base.html' %}
+{% block title %}Bank Detail{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'admin_bank_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+    <h4 class="fw-bold mb-0">Bank Details — {{ bank.user.get_full_name }}</h4>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h6 class="fw-semibold text-muted mb-3">Account Information</h6>
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted">Account Holder</dt>
+                    <dd class="col-7 fw-semibold">{{ bank.account_holder_name }}</dd>
+                    <dt class="col-5 text-muted">Bank Name</dt>
+                    <dd class="col-7">{{ bank.bank_name }}</dd>
+                    <dt class="col-5 text-muted">Branch</dt>
+                    <dd class="col-7">{{ bank.branch_name|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">Account Number</dt>
+                    <dd class="col-7 fw-semibold">{{ bank.account_number }}</dd>
+                    <dt class="col-5 text-muted">IFSC Code</dt>
+                    <dd class="col-7 fw-semibold">{{ bank.ifsc_code }}</dd>
+                    <dt class="col-5 text-muted">Account Type</dt>
+                    <dd class="col-7">{{ bank.account_type }}</dd>
+                    <dt class="col-5 text-muted">Submitted</dt>
+                    <dd class="col-7">{{ bank.submitted_at|date:"d M Y, H:i" }}</dd>
+                    <dt class="col-5 text-muted">Status</dt>
+                    <dd class="col-7">
+                        <span class="badge {% if bank.approval_status == 'Pending' %}bg-warning text-dark{% elif bank.approval_status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ bank.approval_status }}
+                        </span>
+                    </dd>
+                    {% if bank.remarks %}
+                    <dt class="col-5 text-muted">Remarks</dt>
+                    <dd class="col-7">{{ bank.remarks }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    {% if bank.approval_status == 'Pending' %}
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body p-4">
+                <h6 class="fw-semibold mb-3 text-success">Approve</h6>
+                <form method="POST" action="{% url 'approve_bank' bank.id %}">
+                    {% csrf_token %}
+                    <textarea name="remarks" class="form-control mb-3" rows="2" placeholder="Remarks (optional)"></textarea>
+                    <button type="submit" class="btn btn-success w-100" onclick="return confirm('Approve bank details?')">
+                        <i class="bi bi-check-circle me-1"></i> Approve
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h6 class="fw-semibold mb-3 text-danger">Reject</h6>
+                <form method="POST" action="{% url 'reject_bank' bank.id %}">
+                    {% csrf_token %}
+                    <textarea name="remarks" class="form-control mb-3" rows="2" placeholder="Reason" required></textarea>
+                    <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Reject bank details?')">
+                        <i class="bi bi-x-circle me-1"></i> Reject
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

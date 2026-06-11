@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold mb-0"><i class="bi bi-calendar-event me-2"></i>Events</h3>
+      <small class="text-muted">Browse and register for upcoming events</small>
+    </div>
+    {% if request.session.user_id %}
+    <a href="{% url 'user_my_events' %}" class="btn btn-dark fw-semibold">
+      <i class="bi bi-ticket-perforated me-1"></i> My Events
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{% url 'user_events' %}"
+       class="btn btn-sm {% if not selected_status %}btn-dark{% else %}btn-outline-secondary{% endif %}">All</a>
+    {% for s in status_choices %}
+    <a href="{% url 'user_events' %}?status={{ s }}"
+       class="btn btn-sm {% if selected_status == s %}btn-dark{% else %}btn-outline-secondary{% endif %}">{{ s }}</a>
+    {% endfor %}
+  </div>
+
+  {% include 'partials/messages.html' %}
+
+  {% if page_obj.object_list %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for event in page_obj %}
+    <div class="col">
+      <div class="card border-0 shadow-sm rounded-4 h-100 hover-shadow overflow-hidden">
+
+        <!-- Event Image -->
+        {% if event.event_image %}
+        <div style="height:200px;overflow:hidden;">
+          <img src="{{ event.event_image.url }}" class="w-100 h-100" style="object-fit:cover;" alt="{{ event.event_name }}">
+        </div>
+        {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:200px;">
+          <i class="bi bi-calendar-event" style="font-size:3rem;"></i>
+        </div>
+        {% endif %}
+
+        <div class="card-body d-flex flex-column p-4">
+          <!-- Status badge -->
+          <div class="mb-2">
+            <span class="badge rounded-pill
+              {% if event.status == 'Upcoming' %}bg-success
+              {% elif event.status == 'Ongoing' %}bg-warning text-dark
+              {% elif event.status == 'Completed' %}bg-secondary
+              {% else %}bg-danger{% endif %}">
+              {{ event.status }}
+            </span>
+          </div>
+
+          <h5 class="fw-bold mb-1">{{ event.event_name }}</h5>
+
+          {% if event.venue %}
+          <div class="text-muted small mb-1">
+            <i class="bi bi-geo-alt me-1"></i>{{ event.venue }}
+          </div>
+          {% endif %}
+
+          <div class="text-muted small mb-2">
+            <i class="bi bi-calendar3 me-1"></i>{{ event.event_date|date:"d M Y" }}
+          </div>
+
+          {% if event.description %}
+          <p class="text-muted small mb-3" style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">
+            {{ event.description }}
+          </p>
+          {% endif %}
+
+          <div class="mt-auto">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div>
+                {% if event.is_free %}
+                <span class="fw-bold text-success fs-5">FREE</span>
+                {% else %}
+                <span class="fw-bold fs-5" style="color:var(--accent-dark);">₹{{ event.event_fee }}</span>
+                {% endif %}
+              </div>
+              <a href="{% url 'user_event_detail' event.id %}" class="btn btn-sm btn-outline-dark px-3">
+                View Details
+              </a>
+            </div>
+
+            {% if event.id in registered_ids %}
+            <div class="btn btn-outline-success w-100 btn-sm" style="pointer-events:none;">
+              <i class="bi bi-check-circle me-1"></i> Already Registered
+            </div>
+            {% elif event.status in 'Upcoming,Ongoing' %}
+            {% if request.session.user_id %}
+            <a href="{% url 'register_event' event.id %}" class="btn btn-dark w-100 btn-sm fw-semibold">
+              <i class="bi bi-ticket-perforated me-1"></i> Register Now
+            </a>
+            {% else %}
+            <a href="{% url 'user_login' %}?next={% url 'register_event' event.id %}" class="btn btn-dark w-100 btn-sm fw-semibold">
+              Login to Register
+            </a>
+            {% endif %}
+            {% else %}
+            <div class="btn btn-outline-secondary w-100 btn-sm" style="pointer-events:none;">
+              Registration Closed
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-5"><ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+      <a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ num }}">{{ num }}</a>
+    </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+    {% endif %}
+  </ul></nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x display-3 text-muted"></i>
+    <h5 class="mt-3 fw-semibold text-muted">No events available</h5>
+    <p class="text-muted">Check back soon for upcoming events.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

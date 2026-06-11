@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Shop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-3">Filter Products</h6>
+                <form method="GET" action="{% url 'shop' %}" id="filterForm">
+                    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+
+                    <!-- Category -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase text-muted">Category</label>
+                        <div class="d-flex flex-column gap-1">
+                            <a href="?{% if q %}q={{ q }}&{% endif %}sort={{ selected_sort }}"
+                               class="text-decoration-none small {% if not selected_category %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                All Categories
+                            </a>
+                            {% for cat in categories %}
+                            <a href="?category={{ cat.id }}&sort={{ selected_sort }}{% if q %}&q={{ q }}{% endif %}"
+                               class="text-decoration-none small {% if selected_category == cat.id|stringformat:'s' %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                {{ cat.category_name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase text-muted">Gender</label>
+                        <select name="gender" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <option value="Men"    {% if selected_gender == 'Men' %}selected{% endif %}>Men</option>
+                            <option value="Women"  {% if selected_gender == 'Women' %}selected{% endif %}>Women</option>
+                            <option value="Unisex" {% if selected_gender == 'Unisex' %}selected{% endif %}>Unisex</option>
+                            <option value="Kids"   {% if selected_gender == 'Kids' %}selected{% endif %}>Kids</option>
+                        </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase text-muted">Price Range (₹)</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ min_price }}">
+                            <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ max_price }}">
+                        </div>
+                        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                        <button type="submit" class="btn btn-sm btn-dark mt-2 w-100">Apply</button>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small text-uppercase text-muted">Sort By</label>
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="latest"     {% if selected_sort == 'latest' %}selected{% endif %}>Latest</option>
+                            <option value="price_asc"  {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low → High</option>
+                            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High → Low</option>
+                            <option value="name"       {% if selected_sort == 'name' %}selected{% endif %}>Name A–Z</option>
+                        </select>
+                    </div>
+
+                    {% if selected_category or selected_gender or min_price or max_price or q %}
+                    <a href="{% url 'shop' %}" class="btn btn-sm btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-x-circle me-1"></i> Clear Filters
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold mb-0">
+                        {% if q %}Search: "{{ q }}"{% else %}All Products{% endif %}
+                    </h5>
+                    <small class="text-muted">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }} found</small>
+                </div>
+                <!-- Search bar -->
+                <form method="GET" action="{% url 'shop' %}" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control form-control-sm" placeholder="Search products..." value="{{ q }}">
+                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                    {% if selected_gender %}<input type="hidden" name="gender" value="{{ selected_gender }}">{% endif %}
+                    <input type="hidden" name="sort" value="{{ selected_sort }}">
+                    <button type="submit" class="btn btn-sm btn-dark"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+
+            {% include 'partials/messages.html' %}
+
+            {% if page_obj.object_list %}
+            <div class="row row-cols-2 row-cols-md-3 g-3">
+                {% for product in page_obj %}
+                <div class="col">
+                    {% include 'partials/product_card.html' %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="d-flex justify-content-center mt-5">
+                <nav><ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&sort={{ selected_sort }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_gender %}&gender={{ selected_gender }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&sort={{ selected_sort }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_gender %}&gender={{ selected_gender }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&sort={{ selected_sort }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_gender %}&gender={{ selected_gender }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul></nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-bag-x fs-1 text-muted d-block mb-3"></i>
+                <h5 class="text-muted">No products found</h5>
+                <a href="{% url 'shop' %}" class="btn btn-dark mt-2">Browse All Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

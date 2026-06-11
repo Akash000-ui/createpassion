@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}My Bank Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'user_dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active">Bank Details</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><i class="bi bi-bank me-2"></i>Bank Details</h3>
+      <p class="text-muted mb-0">Your submitted bank account information.</p>
+    </div>
+    <a href="{% url 'user_bank_submit' %}" class="btn btn-dark">
+      <i class="bi bi-pencil-square me-1"></i>
+      {% if bank.approval_status == 'Approved' %}Update Details{% else %}Edit Submission{% endif %}
+    </a>
+  </div>
+
+  {% include 'partials/messages.html' %}
+
+  <!-- Status Banner -->
+  <div class="alert
+    {% if bank.approval_status == 'Approved' %}alert-success
+    {% elif bank.approval_status == 'Rejected' %}alert-danger
+    {% else %}alert-warning{% endif %} d-flex align-items-start gap-3 mb-4">
+    <i class="bi
+      {% if bank.approval_status == 'Approved' %}bi-check-circle-fill
+      {% elif bank.approval_status == 'Rejected' %}bi-x-circle-fill
+      {% else %}bi-hourglass-split{% endif %} fs-4 flex-shrink-0 mt-1"></i>
+    <div>
+      <strong class="fs-6">Bank Details Status: {{ bank.approval_status }}</strong>
+      {% if bank.approval_status == 'Pending' %}
+      <div class="mt-1 small">Your bank details are under review. This usually takes 24–48 hours.</div>
+      {% elif bank.approval_status == 'Approved' %}
+      <div class="mt-1 small">Your bank details are verified. Refunds and payouts will be sent to this account.</div>
+      {% elif bank.approval_status == 'Rejected' %}
+      <div class="mt-1 small">Your bank details were rejected.
+        {% if bank.remarks %}<br>Admin remark: <em>{{ bank.remarks }}</em>{% endif %}
+        <br>Please <a href="{% url 'user_bank_submit' %}" class="alert-link">update and re-submit</a>.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Details Card -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-credit-card me-1"></i> Account Information
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-5 text-muted small">Status</dt>
+            <dd class="col-7">
+              <span class="badge
+                {% if bank.approval_status == 'Approved' %}bg-success
+                {% elif bank.approval_status == 'Rejected' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ bank.approval_status }}
+              </span>
+            </dd>
+            <dt class="col-5 text-muted small">Account Holder</dt>
+            <dd class="col-7 fw-semibold">{{ bank.account_holder_name }}</dd>
+            <dt class="col-5 text-muted small">Account Number</dt>
+            <dd class="col-7 fw-semibold">{{ bank.account_number }}</dd>
+            <dt class="col-5 text-muted small">Account Type</dt>
+            <dd class="col-7">{{ bank.account_type }}</dd>
+            <dt class="col-5 text-muted small">IFSC Code</dt>
+            <dd class="col-7 fw-semibold">{{ bank.ifsc_code }}</dd>
+            <dt class="col-5 text-muted small">Bank Name</dt>
+            <dd class="col-7">{{ bank.bank_name }}</dd>
+            <dt class="col-5 text-muted small">Branch</dt>
+            <dd class="col-7">{{ bank.branch_name|default:"—" }}</dd>
+            {% if bank.remarks %}
+            <dt class="col-5 text-muted small">Admin Remark</dt>
+            <dd class="col-7 fst-italic">{{ bank.remarks }}</dd>
+            {% endif %}
+          </dl>
+        </div>
+        <div class="card-footer bg-white border-0 pb-3">
+          <a href="{% url 'user_bank_submit' %}" class="btn btn-outline-dark btn-sm w-100">
+            <i class="bi bi-pencil-square me-1"></i>
+            {% if bank.approval_status == 'Rejected' %}Update & Re-submit{% else %}Update Details{% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-clock-history me-1"></i> Submission Timeline
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-5 text-muted small">Submitted On</dt>
+            <dd class="col-7">{{ bank.submitted_at|date:"d M Y, h:i A" }}</dd>
+            <dt class="col-5 text-muted small">Last Updated</dt>
+            <dd class="col-7">{{ bank.updated_at|date:"d M Y, h:i A" }}</dd>
+          </dl>
+
+          <hr class="my-3">
+          <div class="alert alert-light border small mb-0">
+            <i class="bi bi-info-circle me-1 text-primary"></i>
+            Bank details are used for refunds and payouts. Keep your details accurate and up-to-date.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

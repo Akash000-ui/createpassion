@@ -1,0 +1,87 @@
+{% load static %}
+<!-- Announcement Bar -->
+{% comment %} <div class="announcement-bar d-none d-md-block">
+    <span>🚚 Free shipping on orders above ₹999 &nbsp;|&nbsp; Use code <a href="{% url 'shop' %}">VOID20</a> for 20% off your first order</span>
+</div> {% endcomment %}
+
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-main sticky-top">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+            <img src="{% static 'images/logo.jpg' %}" alt="CREATE PASSION" height="40" style="object-fit:contain;">
+            <span style="font-size:.85rem;font-weight:700;line-height:1.1;">CREATE PASSION<br><span style="font-size:.6rem;font-weight:500;opacity:.75;">(OPC) PRIVATE LIMITED</span></span>
+        </a>
+
+        <!-- Toggle -->
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" style="color: var(--text-dark);">
+            <i class="bi bi-list fs-3"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <!-- Left Links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}" href="{% url 'shop' %}">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'shop' %}?gender=Men">Men</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'shop' %}?gender=Women">Women</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'shop' %}?gender=Kids">Kids</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'user_events' %}active{% endif %}" href="{% url 'user_events' %}">Events</a>
+                </li>
+            </ul>
+
+            <!-- Search -->
+            <form class="navbar-search d-flex me-3" action="{% url 'shop' %}" method="GET">
+                <input class="form-control" type="search" name="q" placeholder="Search styles, brands…" value="{{ request.GET.q }}">
+                <button class="btn-search" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <!-- Right Icons -->
+            <div class="d-flex align-items-center gap-1">
+                {% if request.session.user_id %}
+                    <a href="{% url 'view_wishlist' %}" class="navbar-icon-btn" title="Wishlist">
+                        <i class="bi bi-heart"></i>
+                    </a>
+                    <a href="{% url 'view_cart' %}" class="navbar-icon-btn" title="Cart">
+                        <i class="bi bi-bag"></i>
+                        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                    </a>
+                    <div class="nav-item dropdown ms-1">
+                        <a class="navbar-icon-btn dropdown-toggle" href="#" data-bs-toggle="dropdown" title="{{ request.session.user_name }}">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="px-3 py-2 border-bottom mb-1">
+                                <small class="text-muted d-block" style="font-size:0.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Signed in as</small>
+                                <span class="fw-700 text-dark" style="font-size:0.9rem; font-weight:700;">{{ request.session.user_name }}</span>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'user_dashboard' %}"><i class="bi bi-speedometer2 me-2 text-muted"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_orders' %}"><i class="bi bi-bag-heart me-2 text-muted"></i>My Orders</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_wallet' %}"><i class="bi bi-wallet2 me-2 text-muted"></i>My Wallet</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_kyc_detail' %}"><i class="bi bi-person-vcard me-2 text-muted"></i>KYC Verification</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_bank_detail' %}"><i class="bi bi-bank me-2 text-muted"></i>Bank Details</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_inbox' %}"><i class="bi bi-envelope me-2 text-muted"></i>Messages</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_my_events' %}"><i class="bi bi-ticket-perforated me-2 text-muted"></i>My Events</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'user_logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'user_login' %}" class="btn-navbar-login nav-link">Login</a>
+                    <a href="{% url 'user_register' %}" class="btn-navbar-register nav-link">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

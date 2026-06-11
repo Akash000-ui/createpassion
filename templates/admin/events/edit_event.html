@@ -1,0 +1,78 @@
+{% extends 'admin_base.html' %}
+{% block title %}Edit Event{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'admin_events' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+    <h4 class="fw-bold mb-0">Edit Event — {{ event.event_name }}</h4>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Event Name <span class="text-danger">*</span></label>
+                        <input type="text" name="event_name" class="form-control" value="{{ event.event_name }}" required>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Event Date <span class="text-danger">*</span></label>
+                            <input type="date" name="event_date" class="form-control" value="{{ event.event_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Event Fee (₹)</label>
+                            <input type="number" name="event_fee" class="form-control" step="0.01" min="0" value="{{ event.event_fee }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Venue</label>
+                        <input type="text" name="venue" class="form-control" value="{{ event.venue|default:'' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select name="status" class="form-select">
+                            {% for s in status_choices %}
+                            <option value="{{ s }}" {% if event.status == s %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea name="description" class="form-control" rows="3">{{ event.description|default:'' }}</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Event Image</label>
+                        {% if event.event_image %}
+                        <div class="mb-2">
+                            <img src="{{ event.event_image.url }}" class="rounded-3" style="max-height:130px;">
+                        </div>
+                        {% endif %}
+                        <input type="file" name="event_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" id="evtImg">
+                        <img id="evtPreview" class="mt-2 rounded-3 d-none" style="max-height:130px;">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-dark px-4">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                        <a href="{% url 'admin_events' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('evtImg').addEventListener('change', function() {
+    const p = document.getElementById('evtPreview');
+    if (this.files[0]) { p.src = URL.createObjectURL(this.files[0]); p.classList.remove('d-none'); }
+});
+</script>
+{% endblock %}

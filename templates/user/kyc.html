@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block title %}My KYC{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h3 class="fw-bold mb-1"><i class="bi bi-person-vcard me-2"></i>KYC Verification</h3>
+  <p class="text-muted mb-4">Submit your identity documents for verification. Admin will review and approve within 24–48 hours.</p>
+
+  <!-- Status Banner -->
+  {% if kyc %}
+  <div class="alert
+    {% if kyc.approval_status == 'Approved' %}alert-success
+    {% elif kyc.approval_status == 'Rejected' %}alert-danger
+    {% else %}alert-warning{% endif %} d-flex align-items-start gap-3 mb-4">
+    <i class="bi
+      {% if kyc.approval_status == 'Approved' %}bi-check-circle-fill
+      {% elif kyc.approval_status == 'Rejected' %}bi-x-circle-fill
+      {% else %}bi-hourglass-split{% endif %} fs-5 flex-shrink-0 mt-1"></i>
+    <div>
+      <strong>KYC Status: {{ kyc.approval_status }}</strong>
+      {% if kyc.remarks %}
+      <div class="mt-1">Admin remark: <em>{{ kyc.remarks }}</em></div>
+      {% endif %}
+      {% if kyc.approval_status == 'Rejected' %}
+      <div class="mt-1 small">You can update your documents and re-submit below.</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <!-- Form -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-upload me-1"></i>
+          {% if kyc %}Update KYC Documents{% else %}Submit KYC Documents{% endif %}
+        </div>
+        <div class="card-body p-4">
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- PAN Number -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">PAN Number</label>
+              <input type="text" name="pan_number" class="form-control text-uppercase"
+                     value="{{ kyc.pan_number|default:'' }}" placeholder="e.g. ABCDE1234F" maxlength="20">
+            </div>
+
+            <!-- Aadhaar Number -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Aadhaar Number</label>
+              <input type="text" name="aadhaar_number" class="form-control"
+                     value="{{ kyc.aadhaar_number|default:'' }}" placeholder="12-digit Aadhaar number" maxlength="20">
+            </div>
+
+            <h6 class="fw-bold text-muted mb-3 border-bottom pb-2">Upload Documents</h6>
+
+            <div class="alert alert-info small py-2 mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>Note:</strong> Maximum image size <strong>1 MB</strong>.
+              Allowed formats: <strong>JPEG, JPG, PNG</strong>.
+            </div>
+
+            <!-- PAN Card Image -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                PAN Card Image {% if not kyc %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {% if kyc and kyc.pan_image %}
+              <div class="mb-2">
+                <a href="{{ kyc.pan_image.url }}" target="_blank" class="text-decoration-none small">
+                  <i class="bi bi-image me-1"></i> View current image
+                </a>
+                <span class="text-muted small ms-1">(upload new to replace)</span>
+              </div>
+              {% endif %}
+              <input type="file" name="pan_image" class="form-control"
+                     accept=".jpg,.jpeg,.png" {% if not kyc %}required{% endif %}>
+            </div>
+
+            <!-- Aadhaar Front -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Aadhaar Card Front Image {% if not kyc %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {% if kyc and kyc.aadhaar_front_image %}
+              <div class="mb-2">
+                <a href="{{ kyc.aadhaar_front_image.url }}" target="_blank" class="text-decoration-none small">
+                  <i class="bi bi-image me-1"></i> View current image
+                </a>
+                <span class="text-muted small ms-1">(upload new to replace)</span>
+              </div>
+              {% endif %}
+              <input type="file" name="aadhaar_front_image" class="form-control"
+                     accept=".jpg,.jpeg,.png" {% if not kyc %}required{% endif %}>
+            </div>
+
+            <!-- Aadhaar Back -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Aadhaar Card Back Image {% if not kyc %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {% if kyc and kyc.aadhaar_back_image %}
+              <div class="mb-2">
+                <a href="{{ kyc.aadhaar_back_image.url }}" target="_blank" class="text-decoration-none small">
+                  <i class="bi bi-image me-1"></i> View current image
+                </a>
+                <span class="text-muted small ms-1">(upload new to replace)</span>
+              </div>
+              {% endif %}
+              <input type="file" name="aadhaar_back_image" class="form-control"
+                     accept=".jpg,.jpeg,.png" {% if not kyc %}required{% endif %}>
+            </div>
+
+            <!-- Cancel Cheque / Passbook -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">
+                Cancel Cheque or Bank Passbook Front Page {% if not kyc %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {% if kyc and kyc.passbook_image %}
+              <div class="mb-2">
+                <a href="{{ kyc.passbook_image.url }}" target="_blank" class="text-decoration-none small">
+                  <i class="bi bi-image me-1"></i> View current image
+                </a>
+                <span class="text-muted small ms-1">(upload new to replace)</span>
+              </div>
+              {% endif %}
+              <input type="file" name="passbook_image" class="form-control"
+                     accept=".jpg,.jpeg,.png" {% if not kyc %}required{% endif %}>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-dark btn-lg fw-semibold"
+                {% if kyc and kyc.approval_status == 'Approved' %}
+                  onclick="return confirm('Your KYC is already approved. Re-submitting will reset it to Pending for re-review. Continue?')"
+                {% endif %}>
+                <i class="bi bi-send me-1"></i>
+                {% if kyc %}Update & Re-submit KYC{% else %}Submit KYC{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info sidebar -->
+    <div class="col-lg-5">
+      {% if kyc %}
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-clock-history me-1"></i> Submission Details
+        </div>
+        <div class="card-body">
+          <dl class="row small mb-0">
+            <dt class="col-5 text-muted">Submitted</dt>
+            <dd class="col-7">{{ kyc.submitted_at|date:"d M Y" }}</dd>
+            <dt class="col-5 text-muted">Last Updated</dt>
+            <dd class="col-7">{{ kyc.updated_at|date:"d M Y" }}</dd>
+            <dt class="col-5 text-muted">PAN Number</dt>
+            <dd class="col-7 fw-semibold">{{ kyc.pan_number|default:"—" }}</dd>
+            <dt class="col-5 text-muted">Aadhaar No.</dt>
+            <dd class="col-7 fw-semibold">{{ kyc.aadhaar_number|default:"—" }}</dd>
+          </dl>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-bold text-muted mb-3">Required Documents</h6>
+          <ul class="list-unstyled small mb-0">
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-file-earmark-image text-primary flex-shrink-0 mt-1"></i>
+              <span><strong>PAN Card</strong> — Clear photo of front side</span>
+            </li>
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-file-earmark-image text-primary flex-shrink-0 mt-1"></i>
+              <span><strong>Aadhaar Card Front</strong> — Front side showing name & photo</span>
+            </li>
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-file-earmark-image text-primary flex-shrink-0 mt-1"></i>
+              <span><strong>Aadhaar Card Back</strong> — Back side showing address</span>
+            </li>
+            <li class="d-flex gap-2">
+              <i class="bi bi-file-earmark-image text-primary flex-shrink-0 mt-1"></i>
+              <span><strong>Cancel Cheque / Passbook</strong> — Clearly shows account details</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

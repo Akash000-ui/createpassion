@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    {% include 'partials/messages.html' %}
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-dark text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shop' %}" class="text-dark text-decoration-none">Shop</a></li>
+            {% if product.category %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'shop' %}?category={{ product.category.id }}" class="text-dark text-decoration-none">
+                    {{ product.category.category_name }}
+                </a>
+            </li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Product Main Section -->
+    <div class="row g-5">
+
+        <!-- Gallery -->
+        <div class="col-lg-5">
+            <!-- Main Image -->
+            <div class="rounded-4 overflow-hidden mb-3 border" style="background:#f8f8f8;">
+                <img id="mainImg" src="{{ product.main_image.url }}" class="w-100"
+                     style="max-height:480px;object-fit:contain;padding:1rem;" alt="{{ product.name }}">
+            </div>
+            <!-- Thumbnails -->
+            {% if images %}
+            <div class="d-flex gap-2 flex-wrap">
+                <img src="{{ product.main_image.url }}"
+                     class="thumb-img rounded-3 border active-thumb"
+                     style="width:72px;height:72px;object-fit:cover;cursor:pointer;"
+                     onclick="document.getElementById('mainImg').src=this.src">
+                {% for img in images %}
+                <img src="{{ img.image.url }}"
+                     class="thumb-img rounded-3 border"
+                     style="width:72px;height:72px;object-fit:cover;cursor:pointer;"
+                     onclick="document.getElementById('mainImg').src=this.src">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-lg-7">
+            <!-- Badges -->
+            <div class="d-flex gap-2 mb-2">
+                {% if product.featured %}<span class="badge bg-warning text-dark">Featured</span>{% endif %}
+                {% if product.trending %}<span class="badge bg-danger">Trending</span>{% endif %}
+                {% if not product.is_in_stock %}<span class="badge bg-secondary">Out of Stock</span>{% endif %}
+            </div>
+
+            {% if product.category %}
+            <small class="text-muted text-uppercase fw-semibold" style="font-size:.72rem;letter-spacing:.5px;">
+                {{ product.category.category_name }}
+            </small>
+            {% endif %}
+            <h2 class="fw-bold mt-1 mb-2">{{ product.name }}</h2>
+
+            <!-- Rating Summary -->
+            <div class="d-flex align-items-center gap-2 mb-3">
+                {% if avg_rating > 0 %}
+                <div class="d-flex gap-1">
+                    {% for i in '12345' %}
+                    <i class="bi bi-star{% if forloop.counter <= avg_rating %}-fill text-warning{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <span class="fw-semibold">{{ avg_rating }}</span>
+                <span class="text-muted small">({{ rating_count }} rating{{ rating_count|pluralize }})</span>
+                {% else %}
+                <span class="text-muted small">No ratings yet</span>
+                {% endif %}
+            </div>
+
+            <!-- Price -->
+            <div class="mb-3">
+                {% if product.discount_percentage > 0 %}
+                <span class="fs-2 fw-bold">₹{{ product.get_discounted_price }}</span>
+                <span class="text-muted text-decoration-line-through ms-2 fs-5">₹{{ product.price }}</span>
+                <span class="badge bg-success ms-2">{{ product.discount_percentage|floatformat:0 }}% OFF</span>
+                <div class="text-success small mt-1">You save ₹{{ product.get_savings }}</div>
+                {% else %}
+                <span class="fs-2 fw-bold">₹{{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Meta info -->
+            {% if product.brand %}<p class="mb-1 small"><span class="text-muted">Brand:</span> <strong>{{ product.brand }}</strong></p>{% endif %}
+            {% if product.color %}<p class="mb-1 small"><span class="text-muted">Color:</span> <strong>{{ product.color }}</strong></p>{% endif %}
+            {% if product.gender %}<p class="mb-1 small"><span class="text-muted">Gender:</span> <strong>{{ product.gender }}</strong></p>{% endif %}
+            <p class="mb-3 small"><span class="text-muted">Stock:</span>
+                {% if product.is_in_stock %}<strong class="text-success">{{ product.stock }} available</strong>{% else %}<strong class="text-danger">Out of Stock</strong>{% endif %}
+            </p>
+
+            <!-- Add to Cart Form -->
+            {% if product.is_in_stock %}
+            <form method="POST" action="{% url 'add_to_cart' %}" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+
+                <!-- Size Selection -->
+                {% if sizes %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Select Size <span class="text-danger">*</span></label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for size in sizes %}
+                        <input type="radio" class="btn-check" name="size" id="size_{{ size }}" value="{{ size }}" required>
+                        <label class="btn btn-outline-dark btn-sm px-3" for="size_{{ size }}">{{ size }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Quantity -->
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <label class="fw-semibold mb-0">Qty:</label>
+                    <div class="input-group" style="width:120px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="qtyMinus">−</button>
+                        <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="{{ product.stock }}"
+                               class="form-control text-center form-control-sm">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="qtyPlus">+</button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-dark px-5 fw-semibold">
+                        <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                    </button>
+                </div>
+            </form>
+
+            {% if request.session.user_id %}
+            <form action="{% url 'toggle_wishlist' %}" method="POST" class="d-inline mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-outline-danger px-4 fw-semibold">
+                    <i class="bi bi-heart{% if product.id in wishlist_ids %}-fill{% endif %} me-1"></i>
+                    {% if product.id in wishlist_ids %}Wishlisted{% else %}Add to Wishlist{% endif %}
+                </button>
+            </form>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-secondary d-inline-block">
+                <i class="bi bi-clock me-1"></i> This product is currently out of stock.
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            {% if product.description %}
+            <div class="mt-4 border-top pt-4">
+                <h6 class="fw-bold">Description</h6>
+                <p class="text-muted">{{ product.description|linebreaksbr }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <h5 class="fw-bold mb-4 border-bottom pb-2">Customer Reviews</h5>
+
+            {% for rev in reviews %}
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
+                         style="width:36px;height:36px;font-size:.8rem;font-weight:700;">
+                        {{ rev.user.first_name|first|upper }}
+                    </div>
+                    <div>
+                        <div class="fw-semibold small">{{ rev.user.get_full_name }}</div>
+                        <div class="text-muted" style="font-size:.72rem;">{{ rev.created_at|date:"d M Y" }}</div>
+                    </div>
+                    {% with r=rev.user.ratings.filter %}
+                    {% endwith %}
+                </div>
+                <p class="mb-0 text-muted small">{{ rev.review }}</p>
+            </div>
+            {% empty %}
+            <p class="text-muted">No reviews yet. Be the first to review!</p>
+            {% endfor %}
+
+            <!-- Submit Review -->
+            {% if request.session.user_id %}
+            <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+                <h6 class="fw-bold mb-3">Write a Review</h6>
+                <form method="POST" action="{% url 'submit_review' prod_id=product.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Your Rating</label>
+                        <div class="d-flex gap-2">
+                            {% for i in '54321' %}
+                            <input type="radio" class="btn-check" name="rating" id="r{{ i }}" value="{{ i }}"
+                                   {% if user_rating == i|add:0 %}checked{% endif %}>
+                            <label class="btn btn-outline-warning btn-sm" for="r{{ i }}">{{ i }}★</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Your Review</label>
+                        <textarea name="review" class="form-control" rows="3"
+                                  placeholder="Share your experience...">{{ user_review|default:'' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-dark btn-sm px-4">Submit Review</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="alert alert-light border mt-3 small">
+                <a href="{% url 'user_login' %}?next={{ request.path }}">Login</a> to write a review.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+    <div class="mt-5">
+        <h5 class="fw-bold mb-4">You May Also Like</h5>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            {% for product in related %}
+            <div class="col">{% include 'partials/product_card.html' %}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Thumbnail click highlight
+document.querySelectorAll('.thumb-img').forEach(img => {
+    img.addEventListener('click', function() {
+        document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active-thumb', 'border-dark'));
+        this.classList.add('active-thumb', 'border-dark');
+    });
+});
+// Qty controls
+const qtyInput = document.getElementById('qtyInput');
+const max = qtyInput ? parseInt(qtyInput.max) : 99;
+document.getElementById('qtyMinus')?.addEventListener('click', () => {
+    if (qtyInput.value > 1) qtyInput.value = parseInt(qtyInput.value) - 1;
+});
+document.getElementById('qtyPlus')?.addEventListener('click', () => {
+    if (parseInt(qtyInput.value) < max) qtyInput.value = parseInt(qtyInput.value) + 1;
+});
+</script>
+{% endblock %}

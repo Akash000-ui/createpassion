@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Register Member{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+<div class="row">
+
+    <!-- Sidebar (same as dashboard) -->
+    <div class="col-md-3 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 text-center mb-3">
+            <img src="{{ profile.get_profile_pic_url }}" class="rounded-circle mx-auto d-block mb-2"
+                 width="70" height="70" style="object-fit:cover;">
+            <div class="fw-bold">{{ profile.get_full_name }}</div>
+            <small class="text-muted">{{ profile.email|default:profile.member_id }}</small>
+        </div>
+        <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
+            <a href="{% url 'user_dashboard' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+            <a href="{% url 'update_profile' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-person-gear me-2"></i> My Profile
+            </a>
+            <a href="{% url 'genealogy_tree' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-diagram-3 me-2"></i> My Network
+            </a>
+            {% if profile.rank in 'FA,FEM,CEM,BH,BA' %}
+            <a href="{% url 'register_member' %}" class="list-group-item list-group-item-action border-0 active fw-semibold">
+                <i class="bi bi-person-plus me-2"></i> Register Member
+            </a>
+            <a href="{% url 'my_referrals' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-people me-2"></i> My Referrals
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-1"><i class="bi bi-person-plus me-2 text-warning"></i>Register New Member</h5>
+                <p class="text-muted small mb-4">
+                    The new member will be registered under your reference and will automatically
+                    receive the <strong>Retailer</strong> rank. You can later promote up to
+                    <strong>5 members</strong> to Fashion Consultant from your referrals page.
+                </p>
+
+                {% if messages %}
+                <div class="mb-3">
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" required
+                                   placeholder="e.g. Ramesh" maxlength="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" required
+                                   placeholder="e.g. Kumar" maxlength="100">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mobile Number</label>
+                            <input type="tel" name="mobile" class="form-control"
+                                   placeholder="10-digit mobile" maxlength="15">
+                            <div class="form-text">Used for login (optional but recommended)</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address</label>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="email@example.com">
+                            <div class="form-text">Optional</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Set Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required
+                                   placeholder="Minimum 6 characters" minlength="6">
+                            <div class="form-text">Share this password with the member so they can login.</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-info py-2 small mb-0">
+                                <i class="bi bi-info-circle me-1"></i>
+                                A <strong>Member ID</strong> (CP#####) will be auto-generated for this member.
+                                They can login using their Member ID and the password you set.
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-dark fw-semibold px-4">
+                                <i class="bi bi-person-check me-2"></i>Register Member
+                            </button>
+                            <a href="{% url 'my_referrals' %}" class="btn btn-outline-secondary px-4">
+                                View My Referrals
+                            </a>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}

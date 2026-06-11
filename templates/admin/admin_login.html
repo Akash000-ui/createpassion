@@ -1,0 +1,67 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% block title %}Admin Login{% endblock %}
+
+{% block auth_content %}
+<section class="min-vh-100 d-flex align-items-center bg-dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4 col-lg-3">
+                <div class="text-center mb-4">
+                    {% load static %}
+                    <img src="{% static 'images/logo.jpg' %}" alt="CREATE PASSION" height="60" style="object-fit:contain;border-radius:8px;">
+                    <h4 class="text-white fw-bold mt-2" style="font-size:1rem;">CREATE PASSION (OPC) PRIVATE LIMITED</h4>
+                    <p class="text-muted small">Administrative Control Panel</p>
+                </div>
+
+                {% include 'partials/messages.html' %}
+
+                <div class="card border-0 rounded-4 shadow-lg">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-center mb-4">Admin Login</h5>
+                        <form method="POST" action="/admin_login">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="admin@voidcloth.com" required autofocus>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" class="form-control" placeholder="Password" required id="adminPw">
+                                    <button type="button" class="btn btn-outline-secondary" id="toggleAdminPw">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-warning fw-bold">
+                                    <i class="bi bi-shield-lock me-2"></i> Login as Admin
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="text-center mt-3 small">
+                    <a href="/" class="text-muted text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Store
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.getElementById('toggleAdminPw').addEventListener('click', function () {
+    const inp = document.getElementById('adminPw');
+    const icon = this.querySelector('i');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    icon.classList.toggle('bi-eye');
+    icon.classList.toggle('bi-eye-slash');
+});
+</script>
+{% endblock %}
+{% endblock %}

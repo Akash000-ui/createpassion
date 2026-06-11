@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: createpassion
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn clothing_business_project.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: createpassion-db
+          property: connectionString
+
+databases:
+  - name: createpassion-db
+    databaseName: createpassion
+    user: createpassion

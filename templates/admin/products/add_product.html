@@ -1,0 +1,129 @@
+{% extends 'admin_base.html' %}
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+    <h4 class="fw-bold mb-0">Add Product</h4>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">— Select —</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Brand</label>
+                    <input type="text" name="brand" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Model No.</label>
+                    <input type="text" name="model_no" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Color</label>
+                    <input type="text" name="color" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Price (₹) <span class="text-danger">*</span></label>
+                    <input type="number" name="price" class="form-control" step="0.01" min="0" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Discount %</label>
+                    <input type="number" name="discount_percentage" class="form-control" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Stock</label>
+                    <input type="number" name="stock" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="Unisex">Unisex</option>
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                        <option value="Kids">Kids</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <!-- Sizes -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Available Sizes</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for size in size_list %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="sizes" value="{{ size }}" id="size_{{ size }}">
+                            <label class="form-check-label" for="size_{{ size }}">{{ size }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Flags -->
+                <div class="col-12">
+                    <div class="d-flex gap-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="featured" id="featuredToggle">
+                            <label class="form-check-label" for="featuredToggle">Featured</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="trending" id="trendingToggle">
+                            <label class="form-check-label" for="trendingToggle">Trending</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Image -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Main Image <span class="text-danger">*</span></label>
+                    <input type="file" name="main_image" class="form-control" accept=".jpg,.jpeg,.png,.webp" id="mainImg" required>
+                    <img id="mainPreview" class="mt-2 rounded-3 d-none" style="max-height:150px;">
+                    <div class="form-text">JPG, PNG, WebP. Max 5MB.</div>
+                </div>
+
+                <!-- Gallery Images -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Gallery Images</label>
+                    <input type="file" name="gallery_images" class="form-control" accept=".jpg,.jpeg,.png,.webp" multiple>
+                    <div class="form-text">Multiple allowed. Max 5MB each.</div>
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-dark px-4">
+                        <i class="bi bi-plus-circle me-1"></i> Add Product
+                    </button>
+                    <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('mainImg').addEventListener('change', function() {
+    const preview = document.getElementById('mainPreview');
+    if (this.files[0]) { preview.src = URL.createObjectURL(this.files[0]); preview.classList.remove('d-none'); }
+});
+</script>
+{% endblock %}

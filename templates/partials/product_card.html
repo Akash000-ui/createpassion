@@ -1,0 +1,93 @@
+{% load static %}
+<div class="product-card card h-100 position-relative">
+
+    <!-- Image Wrapper -->
+    <div class="card-img-wrap">
+
+        <!-- Badges -->
+        <div class="badge-overlay">
+            {% if product.featured %}<span class="badge badge-featured">★ Featured</span>{% endif %}
+            {% if product.trending %}<span class="badge badge-trending">🔥 Trending</span>{% endif %}
+            {% if product.discount_percentage > 0 %}<span class="badge badge-off">{{ product.discount_percentage|floatformat:0 }}% OFF</span>{% endif %}
+        </div>
+
+        <!-- Wishlist Button -->
+        {% if request.session.user_id %}
+        <form action="{% url 'toggle_wishlist' %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="wishlist-btn" title="Wishlist">
+                <i class="bi bi-heart{% if product.id in wishlist_ids %}-fill text-danger{% endif %}"></i>
+            </button>
+        </form>
+        {% endif %}
+
+        <!-- Product Image -->
+        <a href="{% url 'product_detail' prod_id=product.id %}">
+            {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&q=80&auto=format&fit=crop" class="card-img-top" alt="{{ product.name }}">
+            {% endif %}
+        </a>
+
+        <!-- Quick Add Overlay (shows on hover) -->
+        {% if product.is_in_stock %}
+        <div class="quick-add-overlay">
+            <form action="{% url 'add_to_cart' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn w-100 fw-700" style="background: var(--accent); color:#fff; font-weight:700; font-size:0.8rem; border-radius:6px; border:none; padding:8px;">
+                    <i class="bi bi-bag-plus me-1"></i> Quick Add to Bag
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="quick-add-overlay">
+            <div class="text-center py-1" style="color:rgba(255,255,255,0.75); font-size:0.8rem; font-weight:600;">
+                <i class="bi bi-x-circle me-1"></i> Out of Stock
+            </div>
+        </div>
+        {% endif %}
+
+    </div><!-- /card-img-wrap -->
+
+    <div class="card-body d-flex flex-column">
+
+        <!-- Category Tag -->
+        {% if product.category %}
+        <span class="product-category-tag">{{ product.category.category_name }}</span>
+        {% endif %}
+
+        <!-- Name -->
+        <div class="product-name mb-2">
+            <a href="{% url 'product_detail' prod_id=product.id %}">{{ product.name }}</a>
+        </div>
+
+        <!-- Rating -->
+        <div class="d-flex align-items-center gap-1 mb-3">
+            {% with avg=product.average_rating %}
+            {% if avg > 0 %}
+                <span class="rating-stars"><i class="bi bi-star-fill"></i></span>
+                <small class="fw-bold" style="font-size:0.78rem;">{{ avg }}</small>
+                <small class="text-muted" style="font-size:0.72rem;">({{ product.ratings.count }})</small>
+            {% else %}
+                <small class="text-muted" style="font-size:0.75rem;">No reviews yet</small>
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Price at bottom -->
+        <div class="mt-auto d-flex align-items-baseline">
+            {% if product.discount_percentage > 0 %}
+                <span class="price-current">₹{{ product.get_discounted_price }}</span>
+                <span class="price-original">₹{{ product.price }}</span>
+            {% else %}
+                <span class="price-current">₹{{ product.price }}</span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,90 @@
+{% extends 'admin_base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Events</h4>
+    <a href="{% url 'add_event' %}" class="btn btn-dark">
+        <i class="bi bi-plus-circle me-1"></i> Add Event
+    </a>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    {% for s in status_choices %}
+                    <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">Filter</button>
+                <a href="{% url 'admin_events' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for event in page_obj %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            {% if event.event_image %}
+            <img src="{{ event.event_image.url }}" class="card-img-top rounded-top-4" style="height:160px;object-fit:cover;">
+            {% else %}
+            <div class="bg-light rounded-top-4 d-flex align-items-center justify-content-center" style="height:160px;">
+                <i class="bi bi-calendar-event fs-1 text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="fw-bold mb-0">{{ event.event_name }}</h6>
+                    <span class="badge
+                        {% if event.status == 'Upcoming' %}bg-info text-dark
+                        {% elif event.status == 'Ongoing' %}bg-success
+                        {% elif event.status == 'Completed' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                        {{ event.status }}
+                    </span>
+                </div>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-calendar me-1"></i>{{ event.event_date|date:"d M Y" }}
+                    {% if event.venue %}<br><i class="bi bi-geo-alt me-1"></i>{{ event.venue }}{% endif %}
+                </p>
+                <p class="fw-semibold small mb-3">
+                    Fee: {% if event.is_free %}<span class="text-success">Free</span>{% else %}₹{{ event.event_fee }}{% endif %}
+                </p>
+                <p class="small text-muted mb-0">
+                    Registrations: <strong>{{ event.registrations.count }}</strong>
+                </p>
+            </div>
+            <div class="card-footer bg-white border-0 d-flex gap-2 pb-3">
+                <a href="{% url 'event_registrations' event.id %}" class="btn btn-sm btn-outline-dark flex-fill">
+                    <i class="bi bi-people"></i> Registrations
+                </a>
+                <a href="{% url 'edit_event' event.id %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST" action="{% url 'delete_event' event.id %}"
+                      onsubmit="return confirm('Delete this event?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+        No events found. <a href="{% url 'add_event' %}">Create one</a>.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

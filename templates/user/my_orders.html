@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h3 class="fw-bold mb-0"><i class="bi bi-bag-heart me-2"></i>My Orders</h3>
+    <a href="{% url 'shop' %}" class="btn btn-dark btn-sm">
+      <i class="bi bi-cart me-1"></i> Continue Shopping
+    </a>
+  </div>
+
+  <!-- Status Filter -->
+  <div class="mb-4">
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'user_orders' %}"
+         class="btn btn-sm {% if not selected_status %}btn-dark{% else %}btn-outline-secondary{% endif %}">All</a>
+      {% for s in status_choices %}
+      <a href="{% url 'user_orders' %}?status={{ s }}"
+         class="btn btn-sm {% if selected_status == s %}btn-dark{% else %}btn-outline-secondary{% endif %}">{{ s }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if page_obj.object_list %}
+  <div class="d-flex flex-column gap-4">
+    {% for order in page_obj %}
+    <div class="card border-0 shadow-sm rounded-4 hover-shadow">
+
+      <!-- Order Header -->
+      <div class="card-header bg-white border-bottom rounded-top-4 py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+          <span class="fw-bold text-dark">{{ order.order_number }}</span>
+          <span class="text-muted ms-2 small">{{ order.order_date|date:"d M Y, g:i A" }}</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="fw-bold text-danger fs-5">₹{{ order.total_amount }}</span>
+          <span class="text-muted small">{{ order.items.count }} item(s)</span>
+          <a href="{% url 'user_order_detail' order.id %}" class="btn btn-dark btn-sm px-3">
+            <i class="bi bi-eye me-1"></i> Details
+          </a>
+        </div>
+      </div>
+
+      <!-- Tracking Timeline -->
+      <div class="card-body px-4 py-3">
+        {% if order.status == 'Cancelled' %}
+        <div class="d-flex align-items-center gap-2 text-danger">
+          <i class="bi bi-x-circle-fill fs-5"></i>
+          <span class="fw-semibold">Order Cancelled</span>
+        </div>
+
+        {% else %}
+        <!-- Step tracker -->
+        <div class="d-flex align-items-center">
+
+          <!-- Pending -->
+          {% with s="Pending" %}
+          <div class="text-center flex-shrink-0" style="min-width:70px;">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto
+              {% if order.status == s %}bg-warning text-dark border border-warning
+              {% elif order.status == 'Confirmed' or order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}bg-success text-white
+              {% else %}bg-light text-muted border{% endif %}"
+              style="width:34px;height:34px;font-size:.8rem;">
+              {% if order.status == s %}<i class="bi bi-record-circle-fill"></i>
+              {% elif order.status == 'Confirmed' or order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+              {% else %}<i class="bi bi-circle"></i>{% endif %}
+            </div>
+            <div class="small mt-1 {% if order.status == s %}fw-bold text-warning{% elif order.status != 'Pending' %}text-success{% else %}text-muted{% endif %}" style="font-size:.7rem;">Pending</div>
+          </div>
+          <div class="flex-grow-1 border-top border-2 {% if order.status != 'Pending' %}border-success{% else %}border-light{% endif %}" style="min-width:10px;margin-bottom:20px;"></div>
+          {% endwith %}
+
+          <!-- Confirmed -->
+          {% with s="Confirmed" %}
+          <div class="text-center flex-shrink-0" style="min-width:70px;">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto
+              {% if order.status == s %}bg-warning text-dark border border-warning
+              {% elif order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}bg-success text-white
+              {% else %}bg-light text-muted border{% endif %}"
+              style="width:34px;height:34px;font-size:.8rem;">
+              {% if order.status == s %}<i class="bi bi-record-circle-fill"></i>
+              {% elif order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+              {% else %}<i class="bi bi-circle"></i>{% endif %}
+            </div>
+            <div class="small mt-1 {% if order.status == s %}fw-bold text-warning{% elif order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}text-success{% else %}text-muted{% endif %}" style="font-size:.7rem;">Confirmed</div>
+          </div>
+          <div class="flex-grow-1 border-top border-2 {% if order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}" style="min-width:10px;margin-bottom:20px;"></div>
+          {% endwith %}
+
+          <!-- Packed -->
+          {% with s="Packed" %}
+          <div class="text-center flex-shrink-0" style="min-width:70px;">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto
+              {% if order.status == s %}bg-warning text-dark border border-warning
+              {% elif order.status == 'Shipped' or order.status == 'Delivered' %}bg-success text-white
+              {% else %}bg-light text-muted border{% endif %}"
+              style="width:34px;height:34px;font-size:.8rem;">
+              {% if order.status == s %}<i class="bi bi-record-circle-fill"></i>
+              {% elif order.status == 'Shipped' or order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+              {% else %}<i class="bi bi-circle"></i>{% endif %}
+            </div>
+            <div class="small mt-1 {% if order.status == s %}fw-bold text-warning{% elif order.status == 'Shipped' or order.status == 'Delivered' %}text-success{% else %}text-muted{% endif %}" style="font-size:.7rem;">Packed</div>
+          </div>
+          <div class="flex-grow-1 border-top border-2 {% if order.status == 'Shipped' or order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}" style="min-width:10px;margin-bottom:20px;"></div>
+          {% endwith %}
+
+          <!-- Shipped -->
+          {% with s="Shipped" %}
+          <div class="text-center flex-shrink-0" style="min-width:70px;">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto
+              {% if order.status == s %}bg-warning text-dark border border-warning
+              {% elif order.status == 'Delivered' %}bg-success text-white
+              {% else %}bg-light text-muted border{% endif %}"
+              style="width:34px;height:34px;font-size:.8rem;">
+              {% if order.status == s %}<i class="bi bi-record-circle-fill"></i>
+              {% elif order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+              {% else %}<i class="bi bi-circle"></i>{% endif %}
+            </div>
+            <div class="small mt-1 {% if order.status == s %}fw-bold text-warning{% elif order.status == 'Delivered' %}text-success{% else %}text-muted{% endif %}" style="font-size:.7rem;">Shipped</div>
+          </div>
+          <div class="flex-grow-1 border-top border-2 {% if order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}" style="min-width:10px;margin-bottom:20px;"></div>
+          {% endwith %}
+
+          <!-- Delivered -->
+          {% with s="Delivered" %}
+          <div class="text-center flex-shrink-0" style="min-width:70px;">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto
+              {% if order.status == s %}bg-success text-white
+              {% else %}bg-light text-muted border{% endif %}"
+              style="width:34px;height:34px;font-size:.8rem;">
+              {% if order.status == s %}<i class="bi bi-check-lg"></i>
+              {% else %}<i class="bi bi-circle"></i>{% endif %}
+            </div>
+            <div class="small mt-1 {% if order.status == s %}fw-bold text-success{% else %}text-muted{% endif %}" style="font-size:.7rem;">Delivered</div>
+          </div>
+          {% endwith %}
+        </div>
+        {% endif %}
+
+        <!-- Item thumbnails -->
+        {% if order.items.all %}
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+          {% for item in order.items.all|slice:":4" %}
+          {% if item.product and item.product.main_image %}
+          <img src="{{ item.product.main_image.url }}"
+               class="rounded-3 border" style="width:48px;height:48px;object-fit:cover;"
+               title="{{ item.product.name }}{% if item.size %} ({{ item.size }}){% endif %}">
+          {% endif %}
+          {% endfor %}
+          {% if order.items.count > 4 %}
+          <div class="rounded-3 border bg-light d-flex align-items-center justify-content-center text-muted small fw-semibold"
+               style="width:48px;height:48px;">+{{ order.items.count|add:"-4" }}</div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ page_obj.previous_page_number }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if selected_status %}status={{ selected_status }}&{% endif %}page={{ page_obj.next_page_number }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-box-seam display-1 text-muted"></i>
+    <h5 class="mt-3 fw-semibold text-muted">No orders found</h5>
+    <p class="text-muted">{% if selected_status %}No {{ selected_status }} orders.{% else %}You haven't placed any orders yet.{% endif %}</p>
+    <a href="{% url 'shop' %}" class="btn btn-dark mt-2">Shop Now</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

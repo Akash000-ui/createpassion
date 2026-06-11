@@ -1,0 +1,90 @@
+<footer class="footer-main pt-5 pb-0 mt-5">
+    <div class="container">
+        <div class="row g-5 pb-5">
+
+            <!-- Brand Column -->
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-brand mb-3">Void<span>Cloth</span></div>
+                <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; max-width:280px; line-height:1.8;">
+                    Your one-stop destination for premium fashion. Style that speaks, quality that lasts, delivered to your door.
+                </p>
+                <div class="mt-4 mb-4">
+                    <a href="#" class="footer-social-btn"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="bi bi-pinterest"></i></a>
+                </div>
+                <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:14px 18px; border:1px solid rgba(255,255,255,0.08);">
+                    <small style="color:rgba(255,255,255,0.4); font-size:0.7rem; letter-spacing:1px; text-transform:uppercase;">We Accept</small>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">VISA</span>
+                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">MASTERCARD</span>
+                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">UPI</span>
+                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">NET BANKING</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-6">
+                <h6>Shop</h6>
+                <a href="{% url 'shop' %}">All Products</a>
+                <a href="{% url 'shop' %}?gender=Men">Men's</a>
+                <a href="{% url 'shop' %}?gender=Women">Women's</a>
+                <a href="{% url 'shop' %}?gender=Kids">Kids'</a>
+                <a href="{% url 'shop' %}?featured=1">Featured</a>
+                <a href="{% url 'shop' %}?trending=1">Trending</a>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="col-lg-2 col-6">
+                <h6>Account</h6>
+                <a href="{% url 'user_register' %}">Register</a>
+                <a href="{% url 'user_login' %}">Login</a>
+                <a href="{% url 'user_orders' %}">My Orders</a>
+                <a href="{% url 'view_wishlist' %}">Wishlist</a>
+                <a href="{% url 'user_wallet' %}">Wallet</a>
+                <a href="{% url 'user_dashboard' %}">Dashboard</a>
+            </div>
+
+            <!-- Contact -->
+            <div class="col-lg-4 col-md-6">
+                <h6>Get in Touch</h6>
+                <div class="d-flex gap-3 mb-3" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
+                    <i class="bi bi-geo-alt-fill" style="color:var(--accent); margin-top:2px; flex-shrink:0;"></i>
+                    <span>8-1-199/2/P, Sy.No.77, Raidarga, Gachibowli, Hyderabad, Telangana.
+
+Building name : HIGH MARK CHAMBER</span>
+                </div>
+                <div class="d-flex gap-3 mb-3" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
+                    <i class="bi bi-telephone-fill" style="color:var(--accent); flex-shrink:0;"></i>
+                    <span>+91 98765 43210</span>
+                </div>
+                <div class="d-flex gap-3 mb-3" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
+                    <i class="bi bi-envelope-fill" style="color:var(--accent); flex-shrink:0;"></i>
+                    <span>support@createpassion.in</span>
+                </div>
+                <div class="d-flex gap-3 mb-4" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
+                    <i class="bi bi-clock-fill" style="color:var(--accent); flex-shrink:0;"></i>
+                    <span>Mon–Sat: 9AM – 6PM IST</span>
+                </div>
+            </div>
+
+        </div><!-- /row -->
+
+        <!-- Bottom Strip -->
+        <hr class="footer-divider m-0">
+        <div class="py-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <span style="color:rgba(255,255,255,0.35); font-size:0.8rem;">
+                &copy; {% now "Y" %} CREATE PASSION (OPC) PRIVATE LIMITED. All rights reserved.
+            </span>
+            <div class="d-flex gap-4">
+                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Privacy Policy</a>
+                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Terms of Service</a>
+                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Shipping Policy</a>
+            </div>
+        </div>
+
+    </div>
+</footer>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Pass — {{ reg.event.event_name }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b0c10;
+      --accent: #c9a84c;
+      --accent-light: #e8c96d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .pass-card {
+      width: 680px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .pass-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 32px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pass-header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%);
+    }
+    .pass-header .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .pass-header .brand span { color: var(--accent); }
+    .pass-header .event-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+    .pass-header .approved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      margin-top: 10px;
+    }
+    .pass-body {
+      padding: 32px 36px;
+    }
+    .pass-divider {
+      display: flex;
+      align-items: center;
+      margin: 0 -36px;
+      border-top: 2px dashed #e5e7eb;
+      position: relative;
+    }
+    .pass-divider::before,
+    .pass-divider::after {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      background: #f5f0e8;
+      border-radius: 50%;
+      top: 50%; transform: translateY(-50%);
+    }
+    .pass-divider::before { left: -14px; }
+    .pass-divider::after  { right: -14px; }
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .info-icon {
+      width: 38px; height: 38px;
+      background: #f5f0e8;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .info-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .info-value {
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: .95rem;
+    }
+    .pass-id {
+      background: var(--primary);
+      color: var(--accent-light);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .pass-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 14px 36px;
+      font-size: .78rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+    .btn-print {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 36px;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-print:hover { background: #1f2041; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .pass-card { box-shadow: none; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pass-card">
+
+    <!-- Header -->
+    <div class="pass-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="brand">Void<span>Cloth</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.5);text-align:right;">
+          EVENT PASS<br>ADMIT ONE
+        </div>
+      </div>
+      <div class="event-name">{{ reg.event.event_name }}</div>
+      <div class="approved-badge">
+        <i class="bi bi-check-circle-fill"></i> APPROVED &amp; CONFIRMED
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="pass-divider" style="margin:0 -0px;"></div>
+
+    <!-- Body -->
+    <div class="pass-body">
+
+      <div class="row g-0">
+        <div class="col-7 pe-4">
+
+          <div class="info-row">
+            <div class="info-icon"><i class="bi bi-person-fill"></i></div>
+            <div>
+              <div class="info-label">Attendee</div>
+              <div class="info-value">{{ reg.user.get_full_name }}</div>
+              <div class="text-muted" style="font-size:.82rem;">{{ reg.user.email }}</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon"><i class="bi bi-calendar3"></i></div>
+            <div>
+              <div class="info-label">Event Date</div>
+              <div class="info-value">{{ reg.event.event_date|date:"l, d F Y" }}</div>
+            </div>
+          </div>
+
+          {% if reg.event.venue %}
+          <div class="info-row">
+            <div class="info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="info-label">Venue</div>
+              <div class="info-value">{{ reg.event.venue }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="info-row">
+            <div class="info-icon"><i class="bi bi-cash-coin"></i></div>
+            <div>
+              <div class="info-label">Entry Fee Paid</div>
+              <div class="info-value">
+                {% if reg.event.is_free %}Free Event{% else %}₹{{ reg.event.event_fee }}{% endif %}
+              </div>
+            </div>
+          </div>
+
+          {% if reg.utr_number %}
+          <div class="info-row">
+            <div class="info-icon"><i class="bi bi-receipt"></i></div>
+            <div>
+              <div class="info-label">Payment Reference (UTR)</div>
+              <div class="info-value" style="font-family:monospace;">{{ reg.utr_number }}</div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <div class="col-5 d-flex flex-column justify-content-center align-items-center border-start ps-4">
+          <!-- QR-style pass ID box -->
+          <div class="text-center">
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:1px;color:#9ca3af;text-transform:uppercase;margin-bottom:8px;">Pass ID</div>
+            <div class="pass-id">VC-EVT-{{ reg.id|stringformat:"05d" }}</div>
+            <div style="font-size:.7rem;color:#9ca3af;margin-top:8px;">Show this at entry</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1px dashed #e5e7eb;margin-top:24px;padding-top:16px;">
+        <div style="font-size:.75rem;color:#9ca3af;text-align:center;">
+          Registered on {{ reg.registration_date|date:"d M Y, g:i A" }}
+          &nbsp;·&nbsp; This pass is non-transferable and valid for one person only.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pass-footer">
+      CREATE PASSION (OPC) PVT LTD &copy; {{ reg.event.event_date|date:"Y" }} &nbsp;|&nbsp; For support contact support@createpassion.in
+    </div>
+
+  </div>
+
+  <!-- Print / Download button -->
+  <div class="no-print text-center">
+    <button class="btn-print" onclick="window.print()">
+      <i class="bi bi-printer"></i> Print / Save as PDF
+    </button>
+    <br>
+    <a href="{% url 'user_my_events' %}" style="color:#6b7280;font-size:.85rem;margin-top:12px;display:inline-block;">
+      ← Back to My Events
+    </a>
+  </div>
+
+</body>
+</html>

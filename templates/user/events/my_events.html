@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}My Events{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold mb-0"><i class="bi bi-ticket-perforated me-2"></i>My Events</h3>
+      <small class="text-muted">Your event registrations</small>
+    </div>
+    <a href="{% url 'user_events' %}" class="btn btn-dark fw-semibold">
+      <i class="bi bi-calendar-event me-1"></i> Browse Events
+    </a>
+  </div>
+
+  {% include 'partials/messages.html' %}
+
+  {% if page_obj.object_list %}
+  <div class="d-flex flex-column gap-4">
+    {% for reg in page_obj %}
+    <div class="card border-0 shadow-sm rounded-4 hover-shadow overflow-hidden">
+      <div class="row g-0">
+
+        <!-- Event image -->
+        <div class="col-md-3 col-lg-2">
+          {% if reg.event.event_image %}
+          <img src="{{ reg.event.event_image.url }}" class="w-100 h-100" style="object-fit:cover;min-height:140px;">
+          {% else %}
+          <div class="d-flex align-items-center justify-content-center bg-light h-100 text-muted" style="min-height:140px;">
+            <i class="bi bi-calendar-event" style="font-size:2.5rem;"></i>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Event Info -->
+        <div class="col-md-9 col-lg-10">
+          <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-start gap-3">
+
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                <h5 class="fw-bold mb-0">{{ reg.event.event_name }}</h5>
+                <span class="badge rounded-pill
+                  {% if reg.event.status == 'Upcoming' %}bg-success
+                  {% elif reg.event.status == 'Ongoing' %}bg-warning text-dark
+                  {% elif reg.event.status == 'Completed' %}bg-secondary
+                  {% else %}bg-danger{% endif %}">
+                  {{ reg.event.status }}
+                </span>
+              </div>
+
+              <div class="text-muted small mb-2">
+                <i class="bi bi-calendar3 me-1"></i>{{ reg.event.event_date|date:"d F Y" }}
+                {% if reg.event.venue %}
+                &nbsp;·&nbsp;<i class="bi bi-geo-alt me-1"></i>{{ reg.event.venue }}
+                {% endif %}
+              </div>
+
+              <div class="text-muted small">
+                Registered: {{ reg.registration_date|date:"d M Y, g:i A" }}
+              </div>
+
+              {% if reg.utr_number %}
+              <div class="text-muted small mt-1">
+                <i class="bi bi-hash me-1"></i>UTR: <code>{{ reg.utr_number }}</code>
+              </div>
+              {% endif %}
+
+              {% if reg.approval_status == 'Rejected' and reg.remarks %}
+              <div class="alert alert-danger py-1 px-3 mt-2 small mb-0">
+                <i class="bi bi-x-circle me-1"></i>Rejected: {{ reg.remarks }}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Status + Action -->
+            <div class="text-end flex-shrink-0">
+              {% if reg.approval_status == 'Approved' %}
+              <div class="mb-2">
+                <span class="badge bg-success px-3 py-2">
+                  <i class="bi bi-check-circle me-1"></i> Approved
+                </span>
+              </div>
+              <a href="{% url 'download_event_pass' reg.id %}" target="_blank"
+                 class="btn btn-success fw-semibold btn-sm px-4">
+                <i class="bi bi-download me-1"></i> Event Pass
+              </a>
+              {% elif reg.approval_status == 'Rejected' %}
+              <span class="badge bg-danger px-3 py-2">
+                <i class="bi bi-x-circle me-1"></i> Rejected
+              </span>
+              {% else %}
+              <span class="badge bg-warning text-dark px-3 py-2">
+                <i class="bi bi-hourglass-split me-1"></i> Pending Review
+              </span>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-5"><ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+      <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+    </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+    {% endif %}
+  </ul></nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-ticket-perforated display-3 text-muted"></i>
+    <h5 class="mt-3 fw-semibold text-muted">No event registrations yet</h5>
+    <p class="text-muted">Browse events and register to see them here.</p>
+    <a href="{% url 'user_events' %}" class="btn btn-dark mt-2 px-4">
+      <i class="bi bi-calendar-event me-1"></i> Browse Events
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

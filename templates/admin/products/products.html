@@ -1,0 +1,132 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Products</h4>
+    <a href="{% url 'add_product' %}" class="btn btn-dark">
+        <i class="bi bi-plus-circle me-1"></i> Add Product
+    </a>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="cat" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_cat == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.category_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">Filter</button>
+                <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Tags</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                <tr>
+                    <td class="text-muted small">{{ forloop.counter }}</td>
+                    <td>
+                        <img src="{{ product.main_image.url }}" style="width:45px;height:45px;object-fit:cover;" class="rounded-2">
+                    </td>
+                    <td>
+                        <div class="fw-semibold small">{{ product.name }}</div>
+                        <div class="text-muted" style="font-size:.75rem">{{ product.brand|default:"" }}</div>
+                    </td>
+                    <td class="small">{{ product.category.category_name|default:"—" }}</td>
+                    <td class="small">
+                        <div class="fw-semibold">₹{{ product.get_discounted_price }}</div>
+                        {% if product.discount_percentage > 0 %}
+                        <div class="text-muted text-decoration-line-through" style="font-size:.75rem">₹{{ product.price }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if product.stock > 10 %}bg-success{% elif product.stock > 0 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ product.stock }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if product.featured %}<span class="badge bg-warning text-dark me-1">Featured</span>{% endif %}
+                        {% if product.trending %}<span class="badge bg-info text-dark">Trending</span>{% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <a href="{% url 'edit_product' product.id %}" class="btn btn-sm btn-outline-dark" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{% url 'toggle_featured' product.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm {% if product.featured %}btn-warning{% else %}btn-outline-warning{% endif %}" title="Toggle Featured">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'toggle_trending' product.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm {% if product.trending %}btn-info{% else %}btn-outline-info{% endif %}" title="Toggle Trending">
+                                    <i class="bi bi-fire"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'delete_product' product.id %}"
+                                  onsubmit="return confirm('Delete this product permanently?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-5">No products found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white border-0 d-flex justify-content-center py-3">
+        <nav><ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&cat={{ selected_cat }}"><i class="bi bi-chevron-left"></i></a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&q={{ query }}&cat={{ selected_cat }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&cat={{ selected_cat }}"><i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul></nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

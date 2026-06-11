@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'user_events' %}">Events</a></li>
+      <li class="breadcrumb-item active">{{ event.event_name }}</li>
+    </ol>
+  </nav>
+
+  {% include 'partials/messages.html' %}
+
+  <div class="row g-5">
+
+    <!-- Left: Image -->
+    <div class="col-lg-5">
+      {% if event.event_image %}
+      <div class="rounded-4 overflow-hidden shadow-sm">
+        <img src="{{ event.event_image.url }}" class="w-100" style="max-height:420px;object-fit:cover;" alt="{{ event.event_name }}">
+      </div>
+      {% else %}
+      <div class="rounded-4 bg-light d-flex align-items-center justify-content-center shadow-sm" style="height:320px;">
+        <i class="bi bi-calendar-event text-muted" style="font-size:5rem;"></i>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: Details -->
+    <div class="col-lg-7">
+      <span class="badge rounded-pill mb-2
+        {% if event.status == 'Upcoming' %}bg-success
+        {% elif event.status == 'Ongoing' %}bg-warning text-dark
+        {% elif event.status == 'Completed' %}bg-secondary
+        {% else %}bg-danger{% endif %}">
+        {{ event.status }}
+      </span>
+
+      <h2 class="fw-bold mt-1 mb-3">{{ event.event_name }}</h2>
+
+      <div class="d-flex flex-column gap-2 mb-4">
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <i class="bi bi-calendar3 fs-5 flex-shrink-0" style="color:var(--accent-dark);"></i>
+          <span><strong>Date:</strong> {{ event.event_date|date:"l, d F Y" }}</span>
+        </div>
+        {% if event.venue %}
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <i class="bi bi-geo-alt-fill fs-5 flex-shrink-0" style="color:var(--accent-dark);"></i>
+          <span><strong>Venue:</strong> {{ event.venue }}</span>
+        </div>
+        {% endif %}
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <i class="bi bi-cash-coin fs-5 flex-shrink-0" style="color:var(--accent-dark);"></i>
+          <span><strong>Fee:</strong>
+            {% if event.is_free %}<span class="text-success fw-bold">FREE</span>
+            {% else %}<span class="fw-bold fs-5" style="color:var(--accent-dark);">₹{{ event.event_fee }}</span>{% endif %}
+          </span>
+        </div>
+      </div>
+
+      {% if event.description %}
+      <div class="border-top pt-4 mb-4">
+        <h6 class="fw-bold mb-2">About this Event</h6>
+        <p class="text-muted" style="white-space:pre-wrap;">{{ event.description }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Action Area -->
+      {% if registration %}
+        {% if registration.approval_status == 'Approved' %}
+        <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-check-circle-fill fs-5"></i>
+          <div><strong>Registered & Approved!</strong> Your event pass is ready.</div>
+        </div>
+        <a href="{% url 'download_event_pass' registration.id %}" class="btn btn-success fw-semibold px-4" target="_blank">
+          <i class="bi bi-download me-1"></i> Download Event Pass
+        </a>
+        {% elif registration.approval_status == 'Rejected' %}
+        <div class="alert alert-danger d-flex align-items-center gap-2">
+          <i class="bi bi-x-circle-fill fs-5"></i>
+          <div>
+            <strong>Registration Rejected.</strong>
+            {% if registration.remarks %}<div class="small mt-1">Reason: {{ registration.remarks }}</div>{% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning d-flex align-items-center gap-2">
+          <i class="bi bi-hourglass-split fs-5"></i>
+          <div><strong>Registration Pending.</strong> Admin will review your payment and approve shortly.</div>
+        </div>
+        {% endif %}
+
+      {% elif event.status in 'Upcoming,Ongoing' %}
+        {% if request.session.user_id %}
+        <a href="{% url 'register_event' event.id %}" class="btn btn-dark px-5 fw-semibold btn-lg">
+          <i class="bi bi-ticket-perforated me-1"></i>
+          {% if event.is_free %}Register (Free){% else %}Register & Pay ₹{{ event.event_fee }}{% endif %}
+        </a>
+        {% else %}
+        <a href="{% url 'user_login' %}?next={% url 'user_event_detail' event.id %}" class="btn btn-dark px-5 fw-semibold btn-lg">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Login to Register
+        </a>
+        {% endif %}
+      {% else %}
+      <div class="alert alert-secondary">Registration for this event is closed.</div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

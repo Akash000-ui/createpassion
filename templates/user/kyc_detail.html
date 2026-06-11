@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}My KYC Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'user_dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active">KYC Details</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><i class="bi bi-person-vcard me-2"></i>KYC Details</h3>
+      <p class="text-muted mb-0">Your submitted KYC information and documents.</p>
+    </div>
+    <a href="{% url 'user_kyc_submit' %}" class="btn btn-dark">
+      <i class="bi bi-pencil-square me-1"></i>
+      {% if kyc.approval_status == 'Approved' %}Update KYC{% else %}Edit Submission{% endif %}
+    </a>
+  </div>
+
+  {% include 'partials/messages.html' %}
+
+  <!-- Status Banner -->
+  <div class="alert
+    {% if kyc.approval_status == 'Approved' %}alert-success
+    {% elif kyc.approval_status == 'Rejected' %}alert-danger
+    {% else %}alert-warning{% endif %} d-flex align-items-start gap-3 mb-4">
+    <i class="bi
+      {% if kyc.approval_status == 'Approved' %}bi-check-circle-fill
+      {% elif kyc.approval_status == 'Rejected' %}bi-x-circle-fill
+      {% else %}bi-hourglass-split{% endif %} fs-4 flex-shrink-0 mt-1"></i>
+    <div>
+      <strong class="fs-6">KYC Status: {{ kyc.approval_status }}</strong>
+      {% if kyc.approval_status == 'Pending' %}
+      <div class="mt-1 small">Your KYC is under review. This usually takes 24–48 hours.</div>
+      {% elif kyc.approval_status == 'Approved' %}
+      <div class="mt-1 small">Your KYC is verified. You can now access full wallet and transaction features.</div>
+      {% elif kyc.approval_status == 'Rejected' %}
+      <div class="mt-1 small">Your KYC was rejected.
+        {% if kyc.remarks %}<br>Admin remark: <em>{{ kyc.remarks }}</em>{% endif %}
+        <br>Please <a href="{% url 'user_kyc_submit' %}" class="alert-link">update and re-submit</a>.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Details -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-info-circle me-1"></i> KYC Information
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-5 text-muted small">Status</dt>
+            <dd class="col-7">
+              <span class="badge
+                {% if kyc.approval_status == 'Approved' %}bg-success
+                {% elif kyc.approval_status == 'Rejected' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ kyc.approval_status }}
+              </span>
+            </dd>
+            <dt class="col-5 text-muted small">PAN Number</dt>
+            <dd class="col-7 fw-semibold">{{ kyc.pan_number|default:"—" }}</dd>
+            <dt class="col-5 text-muted small">Aadhaar Number</dt>
+            <dd class="col-7 fw-semibold">{{ kyc.aadhaar_number|default:"—" }}</dd>
+            <dt class="col-5 text-muted small">Submitted On</dt>
+            <dd class="col-7">{{ kyc.submitted_at|date:"d M Y, h:i A" }}</dd>
+            <dt class="col-5 text-muted small">Last Updated</dt>
+            <dd class="col-7">{{ kyc.updated_at|date:"d M Y, h:i A" }}</dd>
+            {% if kyc.remarks %}
+            <dt class="col-5 text-muted small">Admin Remark</dt>
+            <dd class="col-7 fst-italic">{{ kyc.remarks }}</dd>
+            {% endif %}
+          </dl>
+        </div>
+        <div class="card-footer bg-white border-0 pb-3">
+          <a href="{% url 'user_kyc_submit' %}" class="btn btn-outline-dark btn-sm w-100">
+            <i class="bi bi-pencil-square me-1"></i>
+            {% if kyc.approval_status == 'Rejected' %}Update & Re-submit{% else %}Update KYC{% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-images me-1"></i> Uploaded Documents
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <!-- PAN Card -->
+            <div class="col-sm-6">
+              <div class="border rounded-3 p-2 text-center h-100">
+                <div class="text-muted small fw-semibold mb-2">
+                  <i class="bi bi-file-earmark-image me-1"></i> PAN Card
+                </div>
+                {% if kyc.pan_image %}
+                <a href="{{ kyc.pan_image.url }}" target="_blank">
+                  <img src="{{ kyc.pan_image.url }}" alt="PAN Card"
+                       class="img-fluid rounded" style="max-height:140px;object-fit:cover;width:100%;">
+                </a>
+                <div class="mt-1">
+                  <a href="{{ kyc.pan_image.url }}" target="_blank" class="small text-decoration-none">
+                    <i class="bi bi-zoom-in"></i> View Full
+                  </a>
+                </div>
+                {% else %}
+                <div class="text-muted small py-4"><i class="bi bi-image fs-3 d-block mb-1"></i>Not uploaded</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Aadhaar Front -->
+            <div class="col-sm-6">
+              <div class="border rounded-3 p-2 text-center h-100">
+                <div class="text-muted small fw-semibold mb-2">
+                  <i class="bi bi-file-earmark-image me-1"></i> Aadhaar Front
+                </div>
+                {% if kyc.aadhaar_front_image %}
+                <a href="{{ kyc.aadhaar_front_image.url }}" target="_blank">
+                  <img src="{{ kyc.aadhaar_front_image.url }}" alt="Aadhaar Front"
+                       class="img-fluid rounded" style="max-height:140px;object-fit:cover;width:100%;">
+                </a>
+                <div class="mt-1">
+                  <a href="{{ kyc.aadhaar_front_image.url }}" target="_blank" class="small text-decoration-none">
+                    <i class="bi bi-zoom-in"></i> View Full
+                  </a>
+                </div>
+                {% else %}
+                <div class="text-muted small py-4"><i class="bi bi-image fs-3 d-block mb-1"></i>Not uploaded</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Aadhaar Back -->
+            <div class="col-sm-6">
+              <div class="border rounded-3 p-2 text-center h-100">
+                <div class="text-muted small fw-semibold mb-2">
+                  <i class="bi bi-file-earmark-image me-1"></i> Aadhaar Back
+                </div>
+                {% if kyc.aadhaar_back_image %}
+                <a href="{{ kyc.aadhaar_back_image.url }}" target="_blank">
+                  <img src="{{ kyc.aadhaar_back_image.url }}" alt="Aadhaar Back"
+                       class="img-fluid rounded" style="max-height:140px;object-fit:cover;width:100%;">
+                </a>
+                <div class="mt-1">
+                  <a href="{{ kyc.aadhaar_back_image.url }}" target="_blank" class="small text-decoration-none">
+                    <i class="bi bi-zoom-in"></i> View Full
+                  </a>
+                </div>
+                {% else %}
+                <div class="text-muted small py-4"><i class="bi bi-image fs-3 d-block mb-1"></i>Not uploaded</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Cancel Cheque / Passbook -->
+            <div class="col-sm-6">
+              <div class="border rounded-3 p-2 text-center h-100">
+                <div class="text-muted small fw-semibold mb-2">
+                  <i class="bi bi-file-earmark-image me-1"></i> Cancel Cheque / Passbook
+                </div>
+                {% if kyc.passbook_image %}
+                <a href="{{ kyc.passbook_image.url }}" target="_blank">
+                  <img src="{{ kyc.passbook_image.url }}" alt="Passbook"
+                       class="img-fluid rounded" style="max-height:140px;object-fit:cover;width:100%;">
+                </a>
+                <div class="mt-1">
+                  <a href="{{ kyc.passbook_image.url }}" target="_blank" class="small text-decoration-none">
+                    <i class="bi bi-zoom-in"></i> View Full
+                  </a>
+                </div>
+                {% else %}
+                <div class="text-muted small py-4"><i class="bi bi-image fs-3 d-block mb-1"></i>Not uploaded</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

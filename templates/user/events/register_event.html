@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Register — {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'user_events' %}">Events</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'user_event_detail' event.id %}">{{ event.event_name }}</a></li>
+      <li class="breadcrumb-item active">Register</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+
+      <!-- Event Summary Card -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4" style="background:var(--bg-cream);">
+        <div class="card-body p-4 d-flex gap-4 align-items-center flex-wrap">
+          {% if event.event_image %}
+          <img src="{{ event.event_image.url }}" class="rounded-3 flex-shrink-0"
+               style="width:80px;height:80px;object-fit:cover;">
+          {% endif %}
+          <div>
+            <h5 class="fw-bold mb-1">{{ event.event_name }}</h5>
+            <div class="text-muted small">
+              <i class="bi bi-calendar3 me-1"></i>{{ event.event_date|date:"d F Y" }}
+              {% if event.venue %}&nbsp;·&nbsp;<i class="bi bi-geo-alt me-1"></i>{{ event.venue }}{% endif %}
+            </div>
+          </div>
+          <div class="ms-auto text-end">
+            <div class="text-muted small">Event Fee</div>
+            {% if event.is_free %}
+            <div class="fw-bold text-success fs-4">FREE</div>
+            {% else %}
+            <div class="fw-bold fs-4" style="color:var(--accent-dark);">₹{{ event.event_fee }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% include 'partials/messages.html' %}
+
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-dark text-white fw-semibold rounded-top-4">
+          <i class="bi bi-ticket-perforated me-1"></i>
+          {% if event.is_free %}Complete Registration{% else %}Submit Payment Details{% endif %}
+        </div>
+        <div class="card-body p-4">
+
+          {% if not event.is_free %}
+          <!-- Payment Instructions -->
+          <div class="alert alert-info mb-4">
+            <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>How to Pay</h6>
+            <ol class="mb-0 small ps-3">
+              <li>Transfer <strong>₹{{ event.event_fee }}</strong> to our UPI ID: <code>createpassion@upi</code></li>
+              <li>Note the UTR / Transaction reference number from your payment app.</li>
+              <li>Take a screenshot of the payment confirmation.</li>
+              <li>Fill in the form below and submit — admin will verify and approve.</li>
+            </ol>
+          </div>
+          {% endif %}
+
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if not event.is_free %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">UTR / Transaction Number <span class="text-danger">*</span></label>
+              <input type="text" name="utr_number" class="form-control"
+                     placeholder="e.g. 428329018274" required
+                     value="{{ request.POST.utr_number|default:'' }}">
+              <div class="form-text">Enter the UTR or reference number shown in your bank/UPI app.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Your UPI ID</label>
+              <input type="text" name="upi_id" class="form-control"
+                     placeholder="e.g. yourname@okicici"
+                     value="{{ request.POST.upi_id|default:'' }}">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Payment Screenshot <span class="text-danger">*</span></label>
+              <input type="file" name="payment_image" class="form-control"
+                     accept=".jpg,.jpeg,.png,.webp" required>
+              <div class="form-text">Upload a clear screenshot of payment confirmation (JPG/PNG, max 5 MB).</div>
+            </div>
+            {% endif %}
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-dark btn-lg fw-semibold">
+                {% if event.is_free %}
+                <i class="bi bi-check-circle me-1"></i> Register for Free
+                {% else %}
+                <i class="bi bi-send me-1"></i> Submit Registration
+                {% endif %}
+              </button>
+              <a href="{% url 'user_event_detail' event.id %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

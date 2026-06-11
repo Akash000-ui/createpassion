@@ -1,0 +1,140 @@
+{% extends 'admin_base.html' %}
+{% block title %}Wallet Requests{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Wallet Requests</h4>
+    <span class="badge bg-dark">{{ page_obj.paginator.count }} total</span>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Pending"  {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Approved" {% if selected_status == 'Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if selected_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">Filter</button>
+                <a href="{% url 'admin_wallet_requests' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>UTR</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Receipt</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wr in page_obj %}
+                <tr>
+                    <td class="text-muted small">{{ forloop.counter }}</td>
+                    <td class="small">
+                        <div class="fw-semibold">{{ wr.user.get_full_name }}</div>
+                        <div class="text-muted" style="font-size:.73rem">{{ wr.user.email }}</div>
+                    </td>
+                    <td class="small fw-semibold">{{ wr.utr_number }}</td>
+                    <td class="fw-semibold small text-success">₹{{ wr.amount }}</td>
+                    <td class="small text-muted">{{ wr.submitted_date|date:"d M Y" }}</td>
+                    <td>
+                        <a href="{{ wr.receipt_image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-image"></i> View
+                        </a>
+                    </td>
+                    <td>
+                        <span class="badge {% if wr.status == 'Pending' %}bg-warning text-dark{% elif wr.status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ wr.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if wr.status == 'Pending' %}
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-success"
+                                    data-bs-toggle="modal" data-bs-target="#approveModal{{ wr.id }}">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#rejectModal{{ wr.id }}">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+
+                        <!-- Approve Modal -->
+                        <div class="modal fade" id="approveModal{{ wr.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h6 class="modal-title">Approve ₹{{ wr.amount }}</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{% url 'approve_wallet' wr.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <textarea name="remarks" class="form-control" rows="2" placeholder="Remarks (optional)"></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success btn-sm">Approve & Credit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reject Modal -->
+                        <div class="modal fade" id="rejectModal{{ wr.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h6 class="modal-title">Reject Request</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{% url 'reject_wallet' wr.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <textarea name="remarks" class="form-control" rows="2" placeholder="Reason for rejection" required></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <span class="text-muted small">{{ wr.remarks|default:"—" }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-5">No wallet requests found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white border-0 d-flex justify-content-center py-3">
+        <nav><ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ selected_status }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+            {% for num in page_obj.paginator.page_range %}<li class="page-item {% if num == page_obj.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}&status={{ selected_status }}">{{ num }}</a></li>{% endfor %}
+            {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ selected_status }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+        </ul></nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

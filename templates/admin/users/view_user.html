@@ -1,0 +1,233 @@
+{% extends 'admin_base.html' %}
+{% block title %}User Details{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'manage_users' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    <h4 class="fw-bold mb-0">User Profile</h4>
+</div>
+
+{% include 'partials/messages.html' %}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <!-- Profile card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body text-center py-4">
+                {% if viewed_user.profile_pic %}
+                <img src="{{ viewed_user.get_profile_pic_url }}" class="rounded-circle mb-3"
+                     style="width:80px;height:80px;object-fit:cover;" alt="">
+                {% else %}
+                <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-3"
+                     style="width:80px;height:80px;font-size:2rem;">
+                    {{ viewed_user.first_name|first|upper }}
+                </div>
+                {% endif %}
+                <h5 class="fw-bold mb-0">{{ viewed_user.get_full_name }}</h5>
+                <small class="text-muted">{{ viewed_user.email }}</small>
+                <div class="mt-2">
+                    <span class="badge {% if viewed_user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                        {% if viewed_user.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <form method="POST" action="{% url 'toggle_user_status' viewed_user.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn w-100 {% if viewed_user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                            onclick="return confirm('{% if viewed_user.is_active %}Deactivate{% else %}Activate{% endif %} this user?')">
+                        {% if viewed_user.is_active %}
+                            <i class="bi bi-person-dash me-1"></i> Deactivate
+                        {% else %}
+                            <i class="bi bi-person-check me-1"></i> Activate
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Rank / Network Card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-header bg-dark text-white fw-semibold rounded-top-4">
+                <i class="bi bi-diagram-3 me-1"></i> Network & Rank
+            </div>
+            <div class="card-body">
+                <dl class="row small mb-3">
+                    <dt class="col-5 text-muted">Member ID</dt>
+                    <dd class="col-7 fw-bold font-monospace">{{ viewed_user.member_id|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">Current Rank</dt>
+                    <dd class="col-7">
+                        {% if viewed_user.rank %}
+                        {% with r=viewed_user.rank %}
+                        <span class="badge"
+                            style="background:{% if r == 'CEM' %}#c9a84c;color:#000{% elif r == 'FEM' %}#4c9ac9{% elif r == 'FA' %}#5fad6e{% elif r == 'FC' %}#9c6cd1{% elif r == 'BH' %}#e67e22{% elif r == 'BA' %}#e74c3c{% else %}#9ca3af{% endif %};">
+                            {{ r }}
+                        </span>
+                        {% endwith %}
+                        <span class="text-muted small ms-1">{{ viewed_user.get_rank_display_name }}</span>
+                        {% else %}<span class="text-muted">— Not set</span>{% endif %}
+                    </dd>
+                    <dt class="col-5 text-muted">Commission</dt>
+                    <dd class="col-7">
+                        {% if viewed_user.get_commission_pct %}{{ viewed_user.get_commission_pct }}%{% else %}—{% endif %}
+                    </dd>
+                    <dt class="col-5 text-muted">Referred By</dt>
+                    <dd class="col-7">
+                        {% if viewed_user.referred_by %}
+                        <a href="{% url 'view_user' viewed_user.referred_by.id %}" class="text-decoration-none small">
+                            {{ viewed_user.referred_by.get_full_name }}
+                            <span class="text-muted">({{ viewed_user.referred_by.member_id|default:"—" }})</span>
+                        </a>
+                        {% else %}<span class="text-muted">Root / None</span>{% endif %}
+                    </dd>
+                    <dt class="col-5 text-muted">Direct Team</dt>
+                    <dd class="col-7">{{ viewed_user.referrals.count }} member{{ viewed_user.referrals.count|pluralize }}</dd>
+                </dl>
+                <hr class="my-2">
+                <p class="small text-muted mb-2 fw-semibold">Update Rank</p>
+                <form method="POST" action="{% url 'update_user_rank' viewed_user.id %}"
+                      onsubmit="return confirm('Update rank for this user?')">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <select name="rank" class="form-select form-select-sm">
+                            <option value="">— Select Rank —</option>
+                            <option value="FC"  {% if viewed_user.rank == 'FC'  %}selected{% endif %}>FC — Fashion Consultant (21%)</option>
+                            <option value="FA"  {% if viewed_user.rank == 'FA'  %}selected{% endif %}>FA — Fashion Associate (30%)</option>
+                            <option value="FEM" {% if viewed_user.rank == 'FEM' %}selected{% endif %}>FEM — Fashion Exec. Manager (39%)</option>
+                            <option value="CEM" {% if viewed_user.rank == 'CEM' %}selected{% endif %}>CEM — Chief Exec. Manager (42%)</option>
+                            <option value="BH"  {% if viewed_user.rank == 'BH'  %}selected{% endif %}>BH — Business Head (43%)</option>
+                            <option value="BA"  {% if viewed_user.rank == 'BA'  %}selected{% endif %}>BA — Business Ambassador (44%)</option>
+                            <option value="RT"  {% if viewed_user.rank == 'RT'  %}selected{% endif %}>RT — Retailer (11%)</option>
+                        </select>
+                        <button type="submit" class="btn btn-dark btn-sm">
+                            <i class="bi bi-check-circle"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-header bg-dark text-white fw-semibold rounded-top-4">
+                <i class="bi bi-wallet2 me-1"></i> Wallet Balance: ₹{{ wallet.balance|default:0|floatformat:2 }}
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">Manually credit this user's wallet balance.</p>
+                <form method="POST" action="{% url 'admin_credit_wallet' viewed_user.id %}">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small">Amount (₹) <span class="text-danger">*</span></label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" name="amount" class="form-control" min="1" step="1"
+                                   placeholder="e.g. 500" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Note (optional)</label>
+                        <input type="text" name="note" class="form-control form-control-sm"
+                               placeholder="e.g. Bonus credit">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm w-100 fw-semibold"
+                            onclick="return confirm('Credit wallet for this user?')">
+                        <i class="bi bi-plus-circle me-1"></i> Credit Wallet
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+                <h6 class="fw-semibold text-muted mb-3">Personal Details</h6>
+                <dl class="row small mb-0">
+                    <dt class="col-5 text-muted">Mobile</dt>
+                    <dd class="col-7">{{ viewed_user.mobile|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">Gender</dt>
+                    <dd class="col-7">{{ viewed_user.gender|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">DOB</dt>
+                    <dd class="col-7">{{ viewed_user.dob|date:"d M Y"|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">City</dt>
+                    <dd class="col-7">{{ viewed_user.city|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">State</dt>
+                    <dd class="col-7">{{ viewed_user.state|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">Pincode</dt>
+                    <dd class="col-7">{{ viewed_user.pincode|default:"—" }}</dd>
+                    <dt class="col-5 text-muted">Joined</dt>
+                    <dd class="col-7">{{ viewed_user.joining_date|date:"d M Y" }}</dd>
+                    <dt class="col-5 text-muted">Income</dt>
+                    <dd class="col-7 fw-bold" style="color:#c9a84c;">₹{{ viewed_user.income|default:0|floatformat:2 }}</dd>
+                    <dt class="col-5 text-muted">Wallet</dt>
+                    <dd class="col-7 fw-semibold">₹{{ wallet.balance|default:0|floatformat:0 }}</dd>
+                    <dt class="col-5 text-muted">KYC</dt>
+                    <dd class="col-7">
+                        {% if kyc %}
+                        <span class="badge {% if kyc.approval_status == 'Approved' %}bg-success{% elif kyc.approval_status == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                            {{ kyc.approval_status }}
+                        </span>
+                        {% else %}<span class="text-muted">Not submitted</span>{% endif %}
+                    </dd>
+                    <dt class="col-5 text-muted">Bank</dt>
+                    <dd class="col-7">
+                        {% if bank %}
+                        <span class="badge {% if bank.approval_status == 'Approved' %}bg-success{% elif bank.approval_status == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                            {{ bank.approval_status }}
+                        </span>
+                        {% else %}<span class="text-muted">Not submitted</span>{% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-bag me-2 text-warning"></i>Recent Orders</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td class="fw-semibold small">{{ order.order_number }}</td>
+                            <td class="small text-muted">{{ order.order_date|date:"d M Y" }}</td>
+                            <td class="fw-semibold small">₹{{ order.total_amount }}</td>
+                            <td>
+                                <span class="badge
+                                    {% if order.status == 'Pending' %}bg-warning text-dark
+                                    {% elif order.status == 'Confirmed' %}bg-info text-dark
+                                    {% elif order.status == 'Shipped' %}bg-primary
+                                    {% elif order.status == 'Delivered' %}bg-success
+                                    {% elif order.status == 'Cancelled' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_order_detail' order.id %}" class="btn btn-sm btn-outline-dark">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">No orders placed yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

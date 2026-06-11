@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}My Referrals{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+<div class="row">
+
+    <!-- Sidebar -->
+    <div class="col-md-3 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 text-center mb-3">
+            <img src="{{ profile.get_profile_pic_url }}" class="rounded-circle mx-auto d-block mb-2"
+                 width="70" height="70" style="object-fit:cover;">
+            <div class="fw-bold">{{ profile.get_full_name }}</div>
+            <small class="text-muted">{{ profile.email|default:profile.member_id }}</small>
+        </div>
+        <div class="list-group list-group-flush shadow-sm rounded-4 overflow-hidden">
+            <a href="{% url 'user_dashboard' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+            <a href="{% url 'update_profile' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-person-gear me-2"></i> My Profile
+            </a>
+            <a href="{% url 'genealogy_tree' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-diagram-3 me-2"></i> My Network
+            </a>
+            <a href="{% url 'register_member' %}" class="list-group-item list-group-item-action border-0">
+                <i class="bi bi-person-plus me-2"></i> Register Member
+            </a>
+            <a href="{% url 'my_referrals' %}" class="list-group-item list-group-item-action border-0 active fw-semibold">
+                <i class="bi bi-people me-2"></i> My Referrals
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+
+        {% if messages %}
+        <div class="mb-3">
+            {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- FC Slot tracker -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background:linear-gradient(135deg,#1a1a2e,#2d2d4e);">
+            <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="text-white-50 small fw-semibold text-uppercase" style="letter-spacing:.05em;">
+                        Fashion Consultant Promotion Slots
+                    </div>
+                    <div class="fw-bold fs-4 text-white mt-1">
+                        {{ fc_count }} / {{ max_fc }}
+                        <span class="fs-6 fw-normal text-white-50">used</span>
+                    </div>
+                    {% if can_promote %}
+                    <div class="small mt-1" style="color:#c9a84c;">
+                        <i class="bi bi-check-circle me-1"></i>
+                        You can promote {{ slots_left }} more member{{ slots_left|pluralize }} to FC.
+                    </div>
+                    {% else %}
+                    <div class="small mt-1 text-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        You have used all {{ max_fc }} FC promotion slots.
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <!-- Slot dots -->
+                    <div class="d-flex gap-2">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= fc_count %}
+                        <div style="width:28px;height:28px;border-radius:50%;background:#c9a84c;"
+                             title="FC slot {{ forloop.counter }} used"></div>
+                        {% else %}
+                        <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:2px dashed rgba(255,255,255,.3);"
+                             title="FC slot {{ forloop.counter }} available"></div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referrals Table -->
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-people me-2 text-warning"></i>
+                    My Referred Members
+                    <span class="badge bg-secondary ms-2">{{ referrals|length }}</span>
+                </h6>
+                <a href="{% url 'register_member' %}" class="btn btn-sm btn-dark">
+                    <i class="bi bi-person-plus me-1"></i> Add Member
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if referrals %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Member</th>
+                                <th>Member ID</th>
+                                <th>Mobile</th>
+                                <th>Current Rank</th>
+                                <th>Joined</th>
+                                <th class="text-center pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in referrals %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ member.get_profile_pic_url }}"
+                                             class="rounded-circle" width="36" height="36"
+                                             style="object-fit:cover;">
+                                        <div>
+                                            <div class="fw-semibold small">{{ member.get_full_name }}</div>
+                                            <div class="text-muted" style="font-size:.75rem;">{{ member.email|default:"—" }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>{{ member.member_id|default:"—" }}</code></td>
+                                <td class="small">{{ member.mobile|default:"—" }}</td>
+                                <td>
+                                    {% if member.rank == 'FC' %}
+                                    <span class="badge" style="background:#9c6cd1;">Fashion Consultant</span>
+                                    {% elif member.rank == 'FA' %}
+                                    <span class="badge" style="background:#5fad6e;">Fashion Associate</span>
+                                    {% elif member.rank == 'FEM' %}
+                                    <span class="badge" style="background:#4c9ac9;">Fashion Exec. Manager</span>
+                                    {% elif member.rank == 'CEM' %}
+                                    <span class="badge" style="background:#c9a84c;">Chief Exec. Manager</span>
+                                    {% elif member.rank == 'BH' %}
+                                    <span class="badge" style="background:#e67e22;">Business Head</span>
+                                    {% elif member.rank == 'BA' %}
+                                    <span class="badge" style="background:#e74c3c;">Business Ambassador</span>
+                                    {% elif member.rank == 'RT' %}
+                                    <span class="badge bg-secondary">Retailer</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ member.joining_date|date:"d M Y" }}</td>
+                                <td class="text-center pe-4">
+                                    {% if member.rank == 'FC' %}
+                                    <span class="badge bg-success px-3 py-2">
+                                        <i class="bi bi-check-circle me-1"></i>Already FC
+                                    </span>
+                                    {% elif member.rank == 'RT' and can_promote %}
+                                    <form method="post"
+                                          action="{% url 'promote_to_fc' member.id %}"
+                                          onsubmit="return confirm('Promote {{ member.get_full_name }} to Fashion Consultant? This will use 1 of your {{ slots_left }} remaining FC slots.');">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-sm fw-semibold"
+                                                style="background:#9c6cd1;color:#fff;border:none;">
+                                            <i class="bi bi-arrow-up-circle me-1"></i>Make FC
+                                        </button>
+                                    </form>
+                                    {% elif member.rank == 'RT' and not can_promote %}
+                                    <button class="btn btn-sm btn-outline-secondary" disabled
+                                            title="All 5 FC slots used">
+                                        <i class="bi bi-lock me-1"></i>Limit Reached
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-people fs-1 mb-3 d-block" style="color:#dee2e6;"></i>
+                    <p class="mb-2">You haven't registered any members yet.</p>
+                    <a href="{% url 'register_member' %}" class="btn btn-dark btn-sm">
+                        <i class="bi bi-person-plus me-1"></i> Register First Member
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+{% endblock %}

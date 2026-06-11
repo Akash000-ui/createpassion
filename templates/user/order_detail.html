@@ -1,0 +1,243 @@
+﻿{% extends 'base.html' %}
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  {% include 'partials/messages.html' %}
+
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+      <h4 class="fw-bold mb-0">Order #{{ order.order_number }}</h4>
+      <small class="text-muted">Placed on {{ order.order_date|date:"d M Y, g:i A" }}</small>
+    </div>
+    <a href="{% url 'user_orders' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i> Back to Orders
+    </a>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Left: Status + Items -->
+    <div class="col-lg-8">
+
+      <!-- Status Timeline -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-activity me-1"></i> Order Status
+        </div>
+        <div class="card-body">
+
+          {% if order.status == 'Cancelled' %}
+          <div class="alert alert-danger mb-0">
+            <i class="bi bi-x-circle-fill me-2"></i>
+            This order has been <strong>cancelled</strong>.
+          </div>
+
+          {% else %}
+          <div class="d-flex align-items-center justify-content-between">
+
+            <!-- Pending -->
+            <div class="text-center flex-shrink-0">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center
+                {% if order.status == 'Pending' %}bg-warning text-dark
+                {% else %}bg-success text-white{% endif %}"
+                style="width:38px;height:38px;">
+                {% if order.status == 'Pending' %}<i class="bi bi-record-circle-fill"></i>
+                {% else %}<i class="bi bi-check-lg"></i>{% endif %}
+              </div>
+              <div class="small mt-1 {% if order.status == 'Pending' %}fw-bold text-warning{% else %}text-success{% endif %}">Pending</div>
+            </div>
+
+            <div class="flex-grow-1 border-top border-2 {% if order.status != 'Pending' %}border-success{% else %}border-light{% endif %}" style="min-width:16px;"></div>
+
+            <!-- Confirmed -->
+            <div class="text-center flex-shrink-0">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center
+                {% if order.status == 'Confirmed' %}bg-warning text-dark
+                {% elif order.status == 'Pending' %}bg-light text-muted border
+                {% else %}bg-success text-white{% endif %}"
+                style="width:38px;height:38px;">
+                {% if order.status == 'Confirmed' %}<i class="bi bi-record-circle-fill"></i>
+                {% elif order.status == 'Pending' %}<i class="bi bi-circle"></i>
+                {% else %}<i class="bi bi-check-lg"></i>{% endif %}
+              </div>
+              <div class="small mt-1
+                {% if order.status == 'Confirmed' %}fw-bold text-warning
+                {% elif order.status == 'Pending' %}text-muted
+                {% else %}text-success{% endif %}">Confirmed</div>
+            </div>
+
+            <div class="flex-grow-1 border-top border-2
+              {% if order.status == 'Packed' or order.status == 'Shipped' or order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}"
+              style="min-width:16px;"></div>
+
+            <!-- Packed -->
+            <div class="text-center flex-shrink-0">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center
+                {% if order.status == 'Packed' %}bg-warning text-dark
+                {% elif order.status == 'Shipped' or order.status == 'Delivered' %}bg-success text-white
+                {% else %}bg-light text-muted border{% endif %}"
+                style="width:38px;height:38px;">
+                {% if order.status == 'Packed' %}<i class="bi bi-record-circle-fill"></i>
+                {% elif order.status == 'Shipped' or order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+                {% else %}<i class="bi bi-circle"></i>{% endif %}
+              </div>
+              <div class="small mt-1
+                {% if order.status == 'Packed' %}fw-bold text-warning
+                {% elif order.status == 'Shipped' or order.status == 'Delivered' %}text-success
+                {% else %}text-muted{% endif %}">Packed</div>
+            </div>
+
+            <div class="flex-grow-1 border-top border-2
+              {% if order.status == 'Shipped' or order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}"
+              style="min-width:16px;"></div>
+
+            <!-- Shipped -->
+            <div class="text-center flex-shrink-0">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center
+                {% if order.status == 'Shipped' %}bg-warning text-dark
+                {% elif order.status == 'Delivered' %}bg-success text-white
+                {% else %}bg-light text-muted border{% endif %}"
+                style="width:38px;height:38px;">
+                {% if order.status == 'Shipped' %}<i class="bi bi-record-circle-fill"></i>
+                {% elif order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+                {% else %}<i class="bi bi-circle"></i>{% endif %}
+              </div>
+              <div class="small mt-1
+                {% if order.status == 'Shipped' %}fw-bold text-warning
+                {% elif order.status == 'Delivered' %}text-success
+                {% else %}text-muted{% endif %}">Shipped</div>
+            </div>
+
+            <div class="flex-grow-1 border-top border-2
+              {% if order.status == 'Delivered' %}border-success{% else %}border-light{% endif %}"
+              style="min-width:16px;"></div>
+
+            <!-- Delivered -->
+            <div class="text-center flex-shrink-0">
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center
+                {% if order.status == 'Delivered' %}bg-success text-white
+                {% else %}bg-light text-muted border{% endif %}"
+                style="width:38px;height:38px;">
+                {% if order.status == 'Delivered' %}<i class="bi bi-check-lg"></i>
+                {% else %}<i class="bi bi-circle"></i>{% endif %}
+              </div>
+              <div class="small mt-1 {% if order.status == 'Delivered' %}fw-bold text-success{% else %}text-muted{% endif %}">Delivered</div>
+            </div>
+
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-bag me-1"></i> Items Ordered
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>
+                  {% if item.product %}
+                  <div class="d-flex align-items-center gap-2">
+                    {% if item.product.main_image %}
+                    <img src="{{ item.product.main_image.url }}" alt=""
+                         class="rounded" style="width:48px;height:48px;object-fit:cover;">
+                    {% endif %}
+                    <div>
+                      <div class="fw-semibold">{{ item.product.name }}</div>
+                      <small class="text-muted">{{ item.product.category }}</small>
+                    </div>
+                  </div>
+                  {% else %}
+                  <span class="text-muted fst-italic">Product no longer available</span>
+                  {% endif %}
+                </td>
+                <td>{{ item.size|default:"---" }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-end">Rs.{{ item.price }}</td>
+                <td class="text-end fw-semibold">Rs.{{ item.get_item_total }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Summary + Address + Cancel -->
+    <div class="col-lg-4">
+
+      <!-- Price Breakdown -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-receipt me-1"></i> Price Details
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span>Rs.{{ order.subtotal }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Delivery</span>
+            {% if order.delivery_charge == 0 %}
+            <span class="text-success fw-semibold">FREE</span>
+            {% else %}
+            <span>Rs.{{ order.delivery_charge }}</span>
+            {% endif %}
+          </div>
+          <hr class="my-2">
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>Total Paid</span>
+            <span class="text-danger">Rs.{{ order.total_amount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Address -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-dark text-white fw-semibold">
+          <i class="bi bi-geo-alt me-1"></i> Delivery Address
+        </div>
+        <div class="card-body">
+          <p class="mb-0" style="white-space: pre-line;">{{ order.delivery_address }}</p>
+        </div>
+      </div>
+
+      <!-- Cancel Action -->
+      {% if order.status == 'Pending' or order.status == 'Confirmed' %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <p class="text-muted small mb-3">
+            You can cancel this order while it is still <strong>{{ order.status }}</strong>.
+          </p>
+          <form method="post" action="{% url 'cancel_order' order.id %}"
+                onsubmit="return confirm('Cancel this order?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger w-100">
+              <i class="bi bi-x-circle me-1"></i> Cancel Order
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
