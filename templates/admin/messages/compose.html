@@ -12,37 +12,49 @@
 <div class="row justify-content-center">
   <div class="col-lg-7">
 
+    {% if messages %}
+    <div class="mb-3">
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="card border-0 shadow-sm">
       <div class="card-header bg-dark text-white fw-semibold">
-        <i class="bi bi-envelope me-1"></i> New Message to User
+        <i class="bi bi-envelope me-1"></i> New Message
       </div>
       <div class="card-body p-4">
         <form method="POST" novalidate>
           {% csrf_token %}
 
           <div class="mb-3">
-            <label class="form-label fw-semibold">Select User <span class="text-danger">*</span></label>
-            <select name="receiver_id" class="form-select" required>
-              <option value="">-- Choose a user --</option>
-              {% for u in users %}
-              <option value="{{ u.id }}" {% if request.POST.receiver_id == u.id|stringformat:'s' %}selected{% endif %}>
-                {{ u.get_full_name }} ({{ u.email }})
-              </option>
-              {% endfor %}
-            </select>
+            <label class="form-label fw-semibold">
+              Member IDs <span class="text-danger">*</span>
+              <small class="text-muted fw-normal ms-1">— Enter one or multiple Member IDs separated by commas</small>
+            </label>
+            <textarea name="member_ids" class="form-control font-monospace" rows="3"
+                      placeholder="e.g. CP35858, CP35876, CP35856"
+                      required>{{ member_ids_raw|default:'' }}</textarea>
+            <div class="form-text">
+              <i class="bi bi-info-circle me-1"></i>
+              You can paste a list of Member IDs (CP#####). Separate multiple IDs with commas or new lines.
+            </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
             <input type="text" name="subject" class="form-control"
                    placeholder="Message subject..." required
-                   value="{{ request.POST.subject|default:'' }}">
+                   value="{{ subject|default:'' }}">
           </div>
 
           <div class="mb-4">
             <label class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
             <textarea name="message" class="form-control" rows="7"
-                      placeholder="Type your message here..." required>{{ request.POST.message|default:'' }}</textarea>
+                      placeholder="Type your message here..." required>{{ body|default:'' }}</textarea>
           </div>
 
           <div class="d-flex gap-2">

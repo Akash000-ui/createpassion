@@ -224,8 +224,9 @@ def import_income(request):
 # ─── FA+ Member Registration ──────────────────────────────────────────────────
 
 # Ranks that are allowed to register new members and promote to FC
-FA_PLUS_RANKS = ('FA', 'FEM', 'CEM', 'BH', 'BA')
-MAX_FC_LIMIT  = 5
+FA_PLUS_RANKS   = ('FA', 'FEM', 'CEM', 'BH', 'BA')
+PROMOTED_RANKS  = ('FC', 'FA', 'FEM', 'CEM', 'BH', 'BA')  # all ranks above RT count as used slot
+MAX_FC_LIMIT    = 5
 
 
 def _require_fa_plus(request):
@@ -313,7 +314,7 @@ def my_referrals(request):
         return err
 
     referrals    = user.referrals.all().order_by('-created_at')
-    fc_count     = referrals.filter(rank='FC').count()
+    fc_count     = referrals.filter(rank__in=PROMOTED_RANKS).count()
     can_promote  = fc_count < MAX_FC_LIMIT
     slots_left   = max(0, MAX_FC_LIMIT - fc_count)
 
@@ -337,9 +338,9 @@ def promote_to_fc(request, referred_user_id):
         return err
 
     # The target must be a direct referral of the current user
-    target = tget_object_or_404(UserProfile, id=referred_user_id, referred_by=user, is_admin=False)
+    target = get_object_or_404(UserProfile, id=referred_user_id, referred_by=user, is_admin=False)
 
-    fc_count = user.referrals.filter(rank='FC').count()
+    fc_count = user.referrals.filter(rank__in=PROMOTED_RANKS).count()
     if fc_count >= MAX_FC_LIMIT:
         messages.error(
             request,
@@ -348,8 +349,8 @@ def promote_to_fc(request, referred_user_id):
         )
         return redirect('my_referrals')
 
-    if target.rank == 'FC':
-        messages.warning(request, f'{target.get_full_name()} is already a Fashion Consultant.')
+    if target.rank in PROMOTED_RANKS:
+        messages.warning(request, f'{target.get_full_name()} already has a promoted rank ({target.rank}).')
         return redirect('my_referrals')
 
     target.rank = 'FC'

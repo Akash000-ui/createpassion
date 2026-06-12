@@ -149,9 +149,9 @@
                                 </td>
                                 <td class="small text-muted">{{ member.joining_date|date:"d M Y" }}</td>
                                 <td class="text-center pe-4">
-                                    {% if member.rank == 'FC' %}
+                                    {% if member.rank == 'FC' or member.rank == 'FA' or member.rank == 'FEM' or member.rank == 'CEM' or member.rank == 'BH' or member.rank == 'BA' %}
                                     <span class="badge bg-success px-3 py-2">
-                                        <i class="bi bi-check-circle me-1"></i>Already FC
+                                        <i class="bi bi-check-circle me-1"></i>Promoted ({{ member.rank }})
                                     </span>
                                     {% elif member.rank == 'RT' and can_promote %}
                                     <form method="post"

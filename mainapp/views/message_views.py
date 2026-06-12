@@ -135,31 +135,49 @@ def admin_sent(request):
 
 @login_required_admin
 def admin_compose(request):
-    """Admin sends a new message to a user."""
-    users = UserProfile.objects.filter(is_active=True).order_by('first_name')
-
+    """Admin sends a message to one or more users identified by Member ID."""
     if request.method == 'POST':
-        receiver_id = request.POST.get('receiver_id')
+        member_ids_raw = request.POST.get('member_ids', '').strip()
         subject = request.POST.get('subject', '').strip()
-        body = request.POST.get('message', '').strip()
+        body    = request.POST.get('message', '').strip()
 
-        if not receiver_id or not subject or not body:
+        if not member_ids_raw or not subject or not body:
             django_messages.error(request, 'All fields are required.')
-            return render(request, 'admin/messages/compose.html', {'users': users})
+            return render(request, 'admin/messages/compose.html',
+                          {'member_ids_raw': member_ids_raw, 'subject': subject, 'body': body})
 
-        receiver = get_object_or_404(UserProfile, id=receiver_id)
-        Message.objects.create(
-            sender=None,
-            receiver=receiver,
-            is_admin_sender=True,
-            is_admin_receiver=False,
-            subject=subject,
-            message=body,
-        )
-        django_messages.success(request, f'Message sent to {receiver.get_full_name()}.')
+        # Parse comma/space/newline-separated member IDs
+        raw_ids = [x.strip() for x in member_ids_raw.replace('\n', ',').replace(' ', ',').split(',') if x.strip()]
+        if not raw_ids:
+            django_messages.error(request, 'Enter at least one Member ID.')
+            return render(request, 'admin/messages/compose.html',
+                          {'member_ids_raw': member_ids_raw, 'subject': subject, 'body': body})
+
+        sent_to   = []
+        not_found = []
+        for mid in raw_ids:
+            user = UserProfile.objects.filter(member_id__iexact=mid, is_admin=False).first()
+            if not user:
+                not_found.append(mid)
+                continue
+            Message.objects.create(
+                sender=None,
+                receiver=user,
+                is_admin_sender=True,
+                is_admin_receiver=False,
+                subject=subject,
+                message=body,
+            )
+            sent_to.append(user.get_full_name())
+
+        if sent_to:
+            django_messages.success(request, f'Message sent to {len(sent_to)} user(s): {", ".join(sent_to)}.')
+        if not_found:
+            django_messages.warning(request, f'Member ID(s) not found: {", ".join(not_found)}.')
+
         return redirect('admin_sent')
 
-    return render(request, 'admin/messages/compose.html', {'users': users})
+    return render(request, 'admin/messages/compose.html', {})
 
 
 @login_required_admin
