@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',        # must be before staticfiles
     'django.contrib.staticfiles',
     'cloudinary',
     'mainapp',
@@ -106,17 +105,18 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 _CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '').strip()
 if _CLOUDINARY_URL:
     import re as _re
+    import cloudinary as _cld
     _m = _re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', _CLOUDINARY_URL)
     if _m:
-        CLOUDINARY_STORAGE = {
-            'CLOUD_NAME': _m.group(3).strip(),
-            'API_KEY':    _m.group(1).strip(),
-            'API_SECRET': _m.group(2).strip(),
-        }
-    # Django 5.x: use STORAGES dict (DEFAULT_FILE_STORAGE is deprecated)
+        _cld.config(
+            cloud_name=_m.group(3).strip(),
+            api_key=_m.group(1).strip(),
+            api_secret=_m.group(2).strip(),
+        )
+    # Custom storage backend — no django-cloudinary-storage needed
     STORAGES = {
         'default': {
-            'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+            'BACKEND': 'clothing_business_project.cloudinary_backend.CloudinaryMediaStorage',
         },
         'staticfiles': {
             'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
