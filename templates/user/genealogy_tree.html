@@ -210,7 +210,6 @@
                         <div class="net-name">{{ root.name }}</div>
                         <div class="net-mid">{{ root.member_id }}</div>
                         <span class="rank-badge rb-{{ root.rank }}">{{ root.rank }}</span><br>
-                        {% if root.commission %}<div class="net-stat">{{ root.commission }}% commission</div>{% endif %}
                         <div class="net-stat"><i class="bi bi-people-fill"></i> {{ root.direct_count }} direct{{ root.direct_count|pluralize }}</div>
                     </div>
                 </div>
@@ -244,7 +243,6 @@
                                     <div class="net-name">{{ child.name }}</div>
                                     <div class="net-mid">{{ child.member_id }}</div>
                                     <span class="rank-badge rb-{{ child.rank }}">{{ child.rank }}</span><br>
-                                    {% if child.commission %}<div class="net-stat">{{ child.commission }}% commission</div>{% endif %}
                                     <div class="net-stat"><i class="bi bi-people-fill"></i> {{ child.direct_count }} direct{{ child.direct_count|pluralize }}</div>
                                     <span class="view-hint"><i class="bi bi-diagram-3 me-1"></i>View Team</span>
                                 </a>
@@ -255,7 +253,6 @@
                                     <div class="net-name">{{ child.name }}</div>
                                     <div class="net-mid">{{ child.member_id }}</div>
                                     <span class="rank-badge rb-{{ child.rank }}">{{ child.rank }}</span><br>
-                                    {% if child.commission %}<div class="net-stat">{{ child.commission }}% commission</div>{% endif %}
                                     <div class="net-stat text-muted"><i class="bi bi-people-fill"></i> 0 directs</div>
                                 </div>
                                 {% endif %}

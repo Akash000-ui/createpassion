@@ -256,9 +256,12 @@ def _generate_member_id():
 
 @login_required_user
 def register_member(request):
-    user, err = _require_fa_plus(request)
-    if err:
-        return err
+    user = UserProfile.objects.get(id=request.session['user_id'])
+    # FA+, FC, and RT can all register members under their reference
+    ALLOWED_RANKS = ('FA', 'FEM', 'CEM', 'BH', 'BA', 'FC', 'RT')
+    if user.rank not in ALLOWED_RANKS:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('user_dashboard')
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '').strip()
@@ -309,14 +312,17 @@ def register_member(request):
 
 @login_required_user
 def my_referrals(request):
-    user, err = _require_fa_plus(request)
-    if err:
-        return err
+    user = UserProfile.objects.get(id=request.session['user_id'])
+    ALLOWED_RANKS = ('FA', 'FEM', 'CEM', 'BH', 'BA', 'FC', 'RT')
+    if user.rank not in ALLOWED_RANKS:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('user_dashboard')
 
     referrals    = user.referrals.all().order_by('-created_at')
     fc_count     = referrals.filter(rank__in=PROMOTED_RANKS).count()
-    can_promote  = fc_count < MAX_FC_LIMIT
-    slots_left   = max(0, MAX_FC_LIMIT - fc_count)
+    # RT cannot promote members to FC
+    can_promote  = user.rank != 'RT' and fc_count < MAX_FC_LIMIT
+    slots_left   = max(0, MAX_FC_LIMIT - fc_count) if user.rank != 'RT' else 0
 
     return render(request, 'user/my_referrals.html', {
         'profile':    user,

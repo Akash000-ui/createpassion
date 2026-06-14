@@ -34,7 +34,7 @@
                     <a class="nav-link" href="{% url 'shop' %}?gender=Women">Women</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'shop' %}?gender=Kids">Kids</a>
+                    <a class="nav-link" href="{% url 'shop' %}?gender=Accessories">Accessories</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'user_events' %}active{% endif %}" href="{% url 'user_events' %}">Events</a>
@@ -58,10 +58,10 @@
                         {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
                     </a>
                     <div class="nav-item dropdown ms-1">
-                        <a class="navbar-icon-btn dropdown-toggle" href="#" data-bs-toggle="dropdown" title="{{ request.session.user_name }}">
+                        <a class="navbar-icon-btn dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-display="static" title="{{ request.session.user_name }}">
                             <i class="bi bi-person-circle fs-5"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-end">
                             <li class="px-3 py-2 border-bottom mb-1">
                                 <small class="text-muted d-block" style="font-size:0.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Signed in as</small>
                                 <span class="fw-700 text-dark" style="font-size:0.9rem; font-weight:700;">{{ request.session.user_name }}</span>
