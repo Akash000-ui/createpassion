@@ -103,15 +103,31 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # ── Media & Static storage ───────────────────────────────────────────────────
 # cloudinary://API_KEY:API_SECRET@CLOUD_NAME
 _CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '').strip()
-if _CLOUDINARY_URL:
+_CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
+_CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '').strip()
+_CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
+_USE_CLOUDINARY = bool(
+    _CLOUDINARY_URL or (
+        _CLOUDINARY_CLOUD_NAME and _CLOUDINARY_API_KEY and _CLOUDINARY_API_SECRET
+    )
+)
+
+if _USE_CLOUDINARY:
     import re as _re
     import cloudinary as _cld
-    _m = _re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', _CLOUDINARY_URL)
-    if _m:
+    if _CLOUDINARY_URL:
+        _m = _re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', _CLOUDINARY_URL)
+        if _m:
+            _cld.config(
+                cloud_name=_m.group(3).strip(),
+                api_key=_m.group(1).strip(),
+                api_secret=_m.group(2).strip(),
+            )
+    else:
         _cld.config(
-            cloud_name=_m.group(3).strip(),
-            api_key=_m.group(1).strip(),
-            api_secret=_m.group(2).strip(),
+            cloud_name=_CLOUDINARY_CLOUD_NAME,
+            api_key=_CLOUDINARY_API_KEY,
+            api_secret=_CLOUDINARY_API_SECRET,
         )
     # Custom storage backend — no django-cloudinary-storage needed
     STORAGES = {

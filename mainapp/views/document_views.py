@@ -1,5 +1,5 @@
 import os
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from mainapp.utils.common_utils import login_required_admin, paginate_queryset
@@ -126,7 +126,17 @@ def company_documents(request):
 
 def document_download(request, doc_id):
     doc = get_object_or_404(CompanyDocument, id=doc_id)
+    storage = doc.document_file.storage
+
+    if hasattr(storage, 'download_url'):
+        url = storage.download_url(doc.document_file.name)
+        if url:
+            return HttpResponseRedirect(url)
+
     try:
+        file_path = doc.document_file.path
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(file_path)
         response = FileResponse(
             doc.document_file.open('rb'),
             as_attachment=True,
@@ -134,5 +144,7 @@ def document_download(request, doc_id):
             content_type='application/pdf',
         )
         return response
-    except Exception as exc:
-        raise Http404('Document file is not available.') from exc
+    except (AttributeError, NotImplementedError, FileNotFoundError):
+        if doc.document_file.url:
+            return HttpResponseRedirect(doc.document_file.url)
+        raise Http404('Document file is not available.')

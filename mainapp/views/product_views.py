@@ -95,6 +95,7 @@ def delete_category(request, cat_id):
 # ─────────────────────── PRODUCTS ───────────────────────
 
 SIZE_LIST = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '28', '30', '32', '34', '36', '38', '40']
+PRODUCT_SECTIONS = ['Men', 'Women', 'Unisex', 'Accessories']
 
 
 @login_required_admin
@@ -130,6 +131,8 @@ def add_product(request):
         stock       = request.POST.get('stock', '0')
         color       = request.POST.get('color', '').strip()
         gender      = request.POST.get('gender', 'Unisex')
+        if gender not in PRODUCT_SECTIONS:
+            gender = 'Unisex'
         featured    = request.POST.get('featured') == 'on'
         trending    = request.POST.get('trending') == 'on'
         main_image  = request.FILES.get('main_image')
@@ -192,6 +195,8 @@ def edit_product(request, prod_id):
         stock       = request.POST.get('stock', '0')
         color       = request.POST.get('color', '').strip()
         gender      = request.POST.get('gender', 'Unisex')
+        if gender not in PRODUCT_SECTIONS:
+            gender = 'Unisex'
         featured    = request.POST.get('featured') == 'on'
         trending    = request.POST.get('trending') == 'on'
         main_image  = request.FILES.get('main_image')

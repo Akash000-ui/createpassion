@@ -95,7 +95,7 @@
             <!-- Meta info -->
             {% if product.brand %}<p class="mb-1 small"><span class="text-muted">Brand:</span> <strong>{{ product.brand }}</strong></p>{% endif %}
             {% if product.color %}<p class="mb-1 small"><span class="text-muted">Color:</span> <strong>{{ product.color }}</strong></p>{% endif %}
-            {% if product.gender %}<p class="mb-1 small"><span class="text-muted">Gender:</span> <strong>{{ product.gender }}</strong></p>{% endif %}
+            {% if product.gender %}<p class="mb-1 small"><span class="text-muted">Section:</span> <strong>{{ product.gender }}</strong></p>{% endif %}
             <p class="mb-3 small"><span class="text-muted">Stock:</span>
                 {% if product.is_in_stock %}<strong class="text-success">{{ product.stock }} available</strong>{% else %}<strong class="text-danger">Out of Stock</strong>{% endif %}
             </p>

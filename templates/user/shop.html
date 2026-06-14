@@ -29,15 +29,15 @@
                         </div>
                     </div>
 
-                    <!-- Gender -->
+                    <!-- Section -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold small text-uppercase text-muted">Gender</label>
+                        <label class="form-label fw-semibold small text-uppercase text-muted">Section</label>
                         <select name="gender" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="">All</option>
                             <option value="Men"    {% if selected_gender == 'Men' %}selected{% endif %}>Men</option>
                             <option value="Women"  {% if selected_gender == 'Women' %}selected{% endif %}>Women</option>
                             <option value="Unisex" {% if selected_gender == 'Unisex' %}selected{% endif %}>Unisex</option>
-                            <option value="Kids"   {% if selected_gender == 'Kids' %}selected{% endif %}>Kids</option>
+                            <option value="Accessories" {% if selected_gender == 'Accessories' %}selected{% endif %}>Accessories</option>
                         </select>
                     </div>
 

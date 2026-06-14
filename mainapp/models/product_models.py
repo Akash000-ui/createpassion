@@ -24,7 +24,7 @@ class Product(models.Model):
         ('Men', 'Men'),
         ('Women', 'Women'),
         ('Unisex', 'Unisex'),
-        ('Kids', 'Kids'),
+        ('Accessories', 'Accessories'),
     ]
 
     name                = models.CharField(max_length=255)
@@ -36,7 +36,7 @@ class Product(models.Model):
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     stock               = models.PositiveIntegerField(default=0)
     color               = models.CharField(max_length=100, null=True, blank=True)
-    gender              = models.CharField(max_length=10, choices=GENDER_CHOICES, default='Unisex')
+    gender              = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Unisex')
     featured            = models.BooleanField(default=False)
     trending            = models.BooleanField(default=False)
     main_image          = models.ImageField(upload_to='product_images/')
