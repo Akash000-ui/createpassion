@@ -16,16 +16,18 @@ class CloudinaryMediaStorage(Storage):
         folder = os.path.dirname(name).replace('\\', '/')
         basename = os.path.basename(name)
         public_id_no_ext = os.path.splitext(basename)[0]
+        # Build the full public_id including folder
+        full_public_id = f'{folder}/{public_id_no_ext}' if folder else public_id_no_ext
 
         result = cloudinary.uploader.upload(
             content.read() if hasattr(content, 'read') else content,
-            folder=folder,
-            public_id=public_id_no_ext,
+            public_id=full_public_id,
             resource_type='auto',
-            overwrite=False,
-            unique_filename=True,
+            overwrite=True,         # replace if same name exists
+            unique_filename=False,  # do NOT append random suffix
+            invalidate=True,        # bust CDN cache on overwrite
         )
-        # Store as "folder/public_id.format" so url() can reconstruct the Cloudinary URL
+        # Store as "public_id.format" — exactly what Cloudinary uses
         stored = result['public_id']
         fmt = result.get('format', '')
         if fmt:
@@ -43,7 +45,8 @@ class CloudinaryMediaStorage(Storage):
             return name
         # Strip extension to get Cloudinary public_id
         public_id = os.path.splitext(name)[0].replace('\\', '/')
-        return cloudinary.CloudinaryImage(public_id).url
+        url, _ = cloudinary.utils.cloudinary_url(public_id, resource_type='image')
+        return url
 
     def _open(self, name, mode='rb'):
         import urllib.request
