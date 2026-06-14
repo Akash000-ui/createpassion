@@ -503,6 +503,7 @@ def genealogy_tree(request, target_id=None):
         'children':     children,
         'ancestry':     ancestry,
         'is_own_tree':  target.id == current_user.id,
+        'parent_id':    ancestry[-1]['id'] if ancestry else None,
     })
 
 

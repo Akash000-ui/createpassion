@@ -135,15 +135,6 @@
 
 /* legend dot */
 .leg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-
-/* ─ Ancestry breadcrumb strip ───────────────────────── */
-.ancestry-strip {
-    display: flex; flex-wrap: wrap; align-items: center;
-    gap: 4px; font-size: .8rem;
-}
-.ancestry-strip a { color: #c9a84c; text-decoration: none; font-weight: 600; }
-.ancestry-strip a:hover { text-decoration: underline; }
-.ancestry-sep { color: #9ca3af; }
 </style>
 {% endblock %}
 
@@ -169,24 +160,25 @@
             </h4>
             <p class="text-muted small mb-2">Click any member to view their team.</p>
 
-            <!-- Ancestry navigation -->
-            {% if ancestry or not is_own_tree %}
-            <div class="ancestry-strip">
-                <a href="{% url 'genealogy_tree' %}"><i class="bi bi-house-fill me-1"></i>My Tree</a>
-                {% for anc in ancestry %}
-                <span class="ancestry-sep">›</span>
-                <a href="{% url 'genealogy_tree_node' anc.id %}">{{ anc.name }}</a>
-                {% endfor %}
-                {% if not is_own_tree %}
-                <span class="ancestry-sep">›</span>
-                <span class="fw-semibold text-dark">{{ root.name }}</span>
+            <!-- Back button when viewing someone else's tree -->
+            {% if not is_own_tree %}
+            <div class="mt-1">
+                {% if parent_id %}
+                <a href="{% url 'genealogy_tree_node' parent_id %}"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                {% else %}
+                <a href="{% url 'genealogy_tree' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
                 {% endif %}
             </div>
             {% endif %}
         </div>
 
         <!-- Legend -->
-        <div class="d-flex flex-wrap gap-3 small text-muted">
+        {% comment %} <div class="d-flex flex-wrap gap-3 small text-muted">
             <span><span class="leg-dot me-1" style="background:#c9a84c;"></span>CEM (42%)</span>
             <span><span class="leg-dot me-1" style="background:#4c9ac9;"></span>FEM (39%)</span>
             <span><span class="leg-dot me-1" style="background:#5fad6e;"></span>FA (30%)</span>
@@ -194,7 +186,7 @@
             <span><span class="leg-dot me-1" style="background:#e67e22;"></span>BH (43%)</span>
             <span><span class="leg-dot me-1" style="background:#e74c3c;"></span>BA (44%)</span>
             <span><span class="leg-dot me-1" style="background:#9ca3af;"></span>RT (11%)</span>
-        </div>
+        </div> {% endcomment %}
     </div>
 
     <!-- Tree card -->

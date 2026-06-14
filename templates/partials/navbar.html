@@ -39,6 +39,9 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'user_events' %}active{% endif %}" href="{% url 'user_events' %}">Events</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'company_documents' %}active{% endif %}" href="{% url 'company_documents' %}">About Company</a>
+                </li>
             </ul>
 
             <!-- Search -->

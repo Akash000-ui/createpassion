@@ -1,5 +1,5 @@
 {% extends 'admin_base.html' %}
-{% block title %}Add Company PDF{% endblock %}
+{% block title %}Edit Company PDF{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center gap-3 mb-4">
@@ -7,8 +7,8 @@
         <i class="bi bi-arrow-left"></i> Back
     </a>
     <div>
-        <h4 class="fw-bold mb-1">Add Company PDF</h4>
-        <p class="text-muted mb-0 small">Upload a PDF that users can read and download from About Company.</p>
+        <h4 class="fw-bold mb-1">Edit Company PDF</h4>
+        <p class="text-muted mb-0 small">Update the document details or replace the PDF file.</p>
     </div>
 </div>
 
@@ -20,29 +20,32 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Document Name <span class="text-danger">*</span></label>
-                        <input type="text" name="document_name" class="form-control" required>
+                        <input type="text" name="document_name" class="form-control" value="{{ document.document_name }}" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Document Type</label>
                         <select name="document_type" class="form-select">
                             {% for t in type_choices %}
-                            <option value="{{ t }}">{{ t }}</option>
+                            <option value="{{ t }}" {% if document.document_type == t %}selected{% endif %}>{{ t }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
+                        <textarea name="description" class="form-control" rows="3">{{ document.description }}</textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label">PDF File <span class="text-danger">*</span></label>
-                        <input type="file" name="document_file" class="form-control" required accept="application/pdf,.pdf">
-                        <div class="form-text">Only PDF files are allowed. Maximum size: 10 MB.</div>
+                        <label class="form-label">Replace PDF</label>
+                        <input type="file" name="document_file" class="form-control" accept="application/pdf,.pdf">
+                        <div class="form-text">Leave empty to keep the current PDF. Only PDF files, maximum 10 MB.</div>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-dark px-4">
-                            <i class="bi bi-upload me-1"></i> Upload PDF
+                            <i class="bi bi-check2-circle me-1"></i> Save Changes
                         </button>
+                        <a href="{% url 'company_documents' %}?doc={{ document.id }}" target="_blank" class="btn btn-outline-dark">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a>
                         <a href="{% url 'admin_documents' %}" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </form>

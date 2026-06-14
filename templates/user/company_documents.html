@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}About Company{% endblock %}
+
+{% block content %}
+<section class="inner-page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item active">About Company</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">About Company</h2>
+        <p class="text-muted mb-0">Read official company PDFs and download them when needed.</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        {% if selected_doc %}
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="list-group shadow-sm">
+                    {% for doc in documents %}
+                    <a href="{% url 'company_documents' %}?doc={{ doc.id }}"
+                       class="list-group-item list-group-item-action {% if selected_doc.id == doc.id %}active{% endif %}">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-file-earmark-pdf mt-1"></i>
+                            <div>
+                                <div class="fw-semibold small">{{ doc.document_name }}</div>
+                                <div class="small {% if selected_doc.id == doc.id %}text-white-50{% else %}text-muted{% endif %}">
+                                    {{ doc.document_type }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <span class="badge bg-warning mb-2">{{ selected_doc.document_type }}</span>
+                        <h3 class="fw-bold mb-1">{{ selected_doc.document_name }}</h3>
+                        {% if selected_doc.description %}
+                        <p class="text-muted mb-0">{{ selected_doc.description }}</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'document_download' selected_doc.id %}" class="btn btn-dark">
+                        <i class="bi bi-download me-1"></i> Download PDF
+                    </a>
+                </div>
+
+                <div class="border shadow-sm bg-light" style="height: 78vh; min-height: 520px;">
+                    <object data="{{ selected_doc.document_file.url }}" type="application/pdf" width="100%" height="100%">
+                        <iframe src="{{ selected_doc.document_file.url }}" width="100%" height="100%" title="{{ selected_doc.document_name }}"></iframe>
+                    </object>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-file-earmark-pdf display-5 text-muted d-block mb-3"></i>
+            <h4 class="fw-bold">No company PDFs available</h4>
+            <p class="text-muted mb-0">Please check back later.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
