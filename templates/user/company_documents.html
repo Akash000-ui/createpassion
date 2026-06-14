@@ -53,8 +53,8 @@
                 </div>
 
                 <div class="border shadow-sm bg-light" style="height: 78vh; min-height: 520px;">
-                    <object data="{{ selected_doc.document_file.url }}" type="application/pdf" width="100%" height="100%">
-                        <iframe src="{{ selected_doc.document_file.url }}" width="100%" height="100%" title="{{ selected_doc.document_name }}"></iframe>
+                    <object data="{% url 'document_view' selected_doc.id %}" type="application/pdf" width="100%" height="100%">
+                        <iframe src="{% url 'document_view' selected_doc.id %}" width="100%" height="100%" title="{{ selected_doc.document_name }}"></iframe>
                     </object>
                 </div>
             </div>

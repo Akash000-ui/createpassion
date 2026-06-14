@@ -60,10 +60,12 @@ class CloudinaryMediaStorage(Storage):
         if name.startswith('http://') or name.startswith('https://'):
             return name
         public_id = self._public_id_for_url(name)
+        resource_type = self._resource_type(name)
         url, _ = cloudinary.utils.cloudinary_url(
             public_id,
-            resource_type=self._resource_type(name),
+            resource_type=resource_type,
             secure=True,
+            sign_url=resource_type != 'image',
         )
         return url
 
@@ -73,10 +75,12 @@ class CloudinaryMediaStorage(Storage):
         if name.startswith('http://') or name.startswith('https://'):
             return name
         public_id = self._public_id_for_url(name)
+        resource_type = self._resource_type(name)
         url, _ = cloudinary.utils.cloudinary_url(
             public_id,
-            resource_type=self._resource_type(name),
+            resource_type=resource_type,
             secure=True,
+            sign_url=resource_type != 'image',
             flags='attachment',
         )
         return url

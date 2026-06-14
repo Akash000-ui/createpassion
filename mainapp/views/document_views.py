@@ -148,3 +148,10 @@ def document_download(request, doc_id):
         if doc.document_file.url:
             return HttpResponseRedirect(doc.document_file.url)
         raise Http404('Document file is not available.')
+
+
+def document_view(request, doc_id):
+    doc = get_object_or_404(CompanyDocument, id=doc_id)
+    if doc.document_file.url:
+        return HttpResponseRedirect(doc.document_file.url)
+    raise Http404('Document file is not available.')
