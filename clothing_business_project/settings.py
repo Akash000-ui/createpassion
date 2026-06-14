@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',        # must be before staticfiles
     'django.contrib.staticfiles',
-    'cloudinary_storage',
     'cloudinary',
     'mainapp',
 ]
@@ -101,12 +101,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# ── Media files ───────────────────────────────────────────────────────────────
-# The cloudinary library reads CLOUDINARY_URL from the environment automatically.
+# ── Media & Static storage ───────────────────────────────────────────────────
 # cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-_CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
+_CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '').strip()
 if _CLOUDINARY_URL:
     import re as _re
     _m = _re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', _CLOUDINARY_URL)
@@ -116,15 +113,25 @@ if _CLOUDINARY_URL:
             'API_KEY':    _m.group(1).strip(),
             'API_SECRET': _m.group(2).strip(),
         }
-        import cloudinary as _cld
-        _cld.config(
-            cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-            api_key=CLOUDINARY_STORAGE['API_KEY'],
-            api_secret=CLOUDINARY_STORAGE['API_SECRET'],
-        )
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Django 5.x: use STORAGES dict (DEFAULT_FILE_STORAGE is deprecated)
+    STORAGES = {
+        'default': {
+            'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
     MEDIA_URL = '/media/'
 else:
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
     MEDIA_URL  = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
