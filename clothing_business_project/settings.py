@@ -104,14 +104,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ── Media files ───────────────────────────────────────────────────────────────
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')  # set in Render env vars
-if CLOUDINARY_URL:
-    # Production: store uploads on Cloudinary
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
+if CLOUDINARY_URL.startswith('cloudinary://'):
+    # Parse cloudinary://api_key:api_secret@cloud_name
+    import re
+    _m = re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', CLOUDINARY_URL)
+    if _m:
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': _m.group(3),
+            'API_KEY':    _m.group(1),
+            'API_SECRET': _m.group(2),
+        }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'
+    MEDIA_URL = 'https://res.cloudinary.com/'
 else:
-    # Local development: store in media/ folder
-    MEDIA_URL = '/media/'
+    MEDIA_URL  = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── Authentication ────────────────────────────────────────────────────────────
