@@ -6,7 +6,7 @@ services:
     startCommand: "gunicorn clothing_business_project.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.8
+        value: 3.13.5
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
