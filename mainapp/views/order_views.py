@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from mainapp.utils.common_utils import (
@@ -5,6 +6,7 @@ from mainapp.utils.common_utils import (
     paginate_queryset, generate_order_number, debit_wallet
 )
 from mainapp.models import Order, OrderItem, Cart, UserProfile
+from mainapp.utils.pdf_utils import build_order_invoice
 
 
 @login_required_admin
@@ -187,6 +189,20 @@ def user_order_detail(request, order_id):
         'order': order,
         'items': items,
     })
+
+
+@login_required_user
+def download_invoice(request, order_id):
+    user = get_object_or_404(UserProfile, id=request.session['user_id'])
+    order = get_object_or_404(Order, id=order_id, user=user)
+    items = OrderItem.objects.filter(order=order).select_related('product')
+    pdf = build_order_invoice(order, items)
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="invoice-{order.order_number}.pdf"'
+    )
+    return response
 
 
 @login_required_user

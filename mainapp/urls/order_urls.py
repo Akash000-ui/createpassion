@@ -10,6 +10,6 @@ urlpatterns = [
     path('checkout',                                  order_views.checkout,            name='checkout'),
     path('my_orders',                                 order_views.user_orders,         name='user_orders'),
     path('my_orders/<int:order_id>',                  order_views.user_order_detail,   name='user_order_detail'),
+    path('my_orders/<int:order_id>/invoice',          order_views.download_invoice,    name='download_invoice'),
     path('my_orders/<int:order_id>/cancel',           order_views.cancel_order,        name='cancel_order'),
 ]
-

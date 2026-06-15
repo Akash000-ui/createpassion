@@ -47,15 +47,16 @@
                         <p class="text-muted mb-0">{{ selected_doc.description }}</p>
                         {% endif %}
                     </div>
-                    <a href="{% url 'document_download' selected_doc.id %}" class="btn btn-dark">
+                    <a href="{{ selected_doc.get_download_url }}" target="_blank" rel="noopener" class="btn btn-dark">
                         <i class="bi bi-download me-1"></i> Download PDF
                     </a>
                 </div>
 
                 <div class="border shadow-sm bg-light" style="height: 78vh; min-height: 520px;">
-                    <object data="{% url 'document_view' selected_doc.id %}" type="application/pdf" width="100%" height="100%">
-                        <iframe src="{% url 'document_view' selected_doc.id %}" width="100%" height="100%" title="{{ selected_doc.document_name }}"></iframe>
-                    </object>
+                    <iframe src="{{ selected_doc.get_preview_url }}"
+                            width="100%" height="100%"
+                            title="{{ selected_doc.document_name }}"
+                            allow="autoplay"></iframe>
                 </div>
             </div>
         </div>

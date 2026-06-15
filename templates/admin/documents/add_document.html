@@ -8,7 +8,7 @@
     </a>
     <div>
         <h4 class="fw-bold mb-1">Add Company PDF</h4>
-        <p class="text-muted mb-0 small">Upload a PDF that users can read and download from About Company.</p>
+        <p class="text-muted mb-0 small">Add a Google Drive PDF link for the About Company page.</p>
     </div>
 </div>
 
@@ -16,7 +16,7 @@
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Document Name <span class="text-danger">*</span></label>
@@ -35,13 +35,16 @@
                         <textarea name="description" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label">PDF File <span class="text-danger">*</span></label>
-                        <input type="file" name="document_file" class="form-control" required accept="application/pdf,.pdf">
-                        <div class="form-text">Only PDF files are allowed. Maximum size: 10 MB.</div>
+                        <label class="form-label">Google Drive PDF Link <span class="text-danger">*</span></label>
+                        <input type="url" name="google_drive_url" class="form-control"
+                               placeholder="https://drive.google.com/file/d/.../view" required>
+                        <div class="form-text">
+                            In Google Drive, set General access to <strong>Anyone with the link</strong> and role to <strong>Viewer</strong>, then paste the file link here.
+                        </div>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-dark px-4">
-                            <i class="bi bi-upload me-1"></i> Upload PDF
+                            <i class="bi bi-link-45deg me-1"></i> Add PDF Link
                         </button>
                         <a href="{% url 'admin_documents' %}" class="btn btn-outline-secondary">Cancel</a>
                     </div>
