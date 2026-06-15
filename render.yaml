@@ -12,4 +12,12 @@ services:
       - key: DEBUG
         value: "False"
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: createpassion-db
+          property: connectionString
+
+databases:
+  - name: createpassion-db
+    databaseName: createpassion
+    user: createpassion
+    plan: free
