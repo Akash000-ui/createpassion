@@ -43,19 +43,19 @@ def user_dashboard(request):
 
     daily_sales = tree_qs.filter(
         order_date__date=now.date()
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    ).aggregate(total=Sum('subtotal'))['total'] or 0
 
     monthly_sales = tree_qs.filter(
         order_date__year=now.year,
         order_date__month=now.month,
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    ).aggregate(total=Sum('subtotal'))['total'] or 0
 
     prev_month      = now.month - 1 if now.month > 1 else 12
     prev_month_year = now.year if now.month > 1 else now.year - 1
     prev_monthly_sales = tree_qs.filter(
         order_date__year=prev_month_year,
         order_date__month=prev_month,
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    ).aggregate(total=Sum('subtotal'))['total'] or 0
 
     return render(request, 'user/user_dashboard.html', {
         'profile':             user,

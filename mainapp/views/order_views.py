@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from mainapp.utils.common_utils import (
     login_required_admin, login_required_user,
-    paginate_queryset, generate_order_number, debit_wallet
+    paginate_queryset, generate_order_number, debit_wallet,
+    calculate_cart_totals
 )
 from mainapp.models import Order, OrderItem, Cart, UserProfile
 from mainapp.utils.pdf_utils import build_order_invoice
@@ -74,9 +75,10 @@ def checkout(request):
         messages.warning(request, 'Your cart is empty.')
         return redirect('view_cart')
 
-    subtotal = sum(item.get_item_total() for item in cart_items)
-    delivery = 0 if subtotal >= 999 else 60
-    total    = subtotal + delivery
+    totals = calculate_cart_totals(cart_items)
+    subtotal = totals['subtotal']
+    delivery = totals['delivery']
+    total    = totals['total']
 
     # Wallet balance
     from mainapp.utils.common_utils import get_wallet_balance
@@ -88,7 +90,8 @@ def checkout(request):
             messages.error(request, 'Invalid payment method.')
             return render(request, 'user/checkout.html', {
                 'cart_items': cart_items,
-                'subtotal': subtotal, 'delivery': delivery, 'total': total,
+                'subtotal': subtotal, 'gross_total': totals['gross_total'],
+                'tax_total': totals['tax_total'], 'delivery': delivery, 'total': total,
                 'wallet_balance': wallet_balance, 'user': user,
             })
 
@@ -105,7 +108,8 @@ def checkout(request):
             messages.error(request, 'Please fill all delivery address fields.')
             return render(request, 'user/checkout.html', {
                 'cart_items': cart_items,
-                'subtotal': subtotal, 'delivery': delivery, 'total': total,
+                'subtotal': subtotal, 'gross_total': totals['gross_total'],
+                'tax_total': totals['tax_total'], 'delivery': delivery, 'total': total,
                 'wallet_balance': wallet_balance, 'user': user,
             })
 
@@ -119,7 +123,8 @@ def checkout(request):
                 messages.error(request, f'Insufficient wallet balance. Available: ₹{wallet_balance}, Required: ₹{total}')
                 return render(request, 'user/checkout.html', {
                     'cart_items': cart_items,
-                    'subtotal': subtotal, 'delivery': delivery, 'total': total,
+                    'subtotal': subtotal, 'gross_total': totals['gross_total'],
+                    'tax_total': totals['tax_total'], 'delivery': delivery, 'total': total,
                     'wallet_balance': wallet_balance, 'user': user,
                 })
             debit_wallet(user, total)
@@ -158,6 +163,8 @@ def checkout(request):
     return render(request, 'user/checkout.html', {
         'cart_items':     cart_items,
         'subtotal':       subtotal,
+        'gross_total':    totals['gross_total'],
+        'tax_total':      totals['tax_total'],
         'delivery':       delivery,
         'total':          total,
         'wallet_balance': wallet_balance,

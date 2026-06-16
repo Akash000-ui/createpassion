@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 
 from mainapp.models import Cart, Product, UserProfile
-from mainapp.utils.common_utils import login_required_user
+from mainapp.utils.common_utils import calculate_cart_totals, login_required_user
 
 
 def _get_user(request):
@@ -21,15 +21,15 @@ def view_cart(request):
     user  = _get_user(request)
     items = Cart.objects.filter(user=user).select_related('product')
 
-    subtotal = sum(item.get_item_total() for item in items)
-    delivery = 0 if subtotal >= 999 else 60
-    total    = subtotal + delivery
+    totals = calculate_cart_totals(items)
 
     context = {
         'items':      items,
-        'subtotal':   subtotal,
-        'delivery':   delivery,
-        'total':      total,
+        'subtotal':   totals['subtotal'],
+        'gross_total': totals['gross_total'],
+        'tax_total':  totals['tax_total'],
+        'delivery':   totals['delivery'],
+        'total':      totals['total'],
         'cart_count': items.count(),
     }
     return render(request, 'user/cart.html', context)

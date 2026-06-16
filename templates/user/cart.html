@@ -11,37 +11,33 @@
 
     {% if items %}
     <div class="row g-4">
-        <!-- Cart Items -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-0">
                     {% for item in items %}
                     <div class="d-flex align-items-center gap-3 p-3 {% if not forloop.last %}border-bottom{% endif %}">
-                        <!-- Image -->
                         <a href="{% url 'product_detail' prod_id=item.product.id %}">
                             <img src="{{ item.product.main_image.url }}" class="rounded-3"
                                  style="width:80px;height:80px;object-fit:cover;" alt="{{ item.product.name }}">
                         </a>
 
-                        <!-- Info -->
                         <div class="flex-grow-1">
                             <a href="{% url 'product_detail' prod_id=item.product.id %}"
                                class="fw-semibold text-dark text-decoration-none">{{ item.product.name }}</a>
                             {% if item.size %}<div class="text-muted small">Size: {{ item.size }}</div>{% endif %}
                             <div class="text-muted small">
-                                ₹{{ item.product.get_discounted_price }}
+                                Rs.{{ item.product.get_discounted_price }}
                                 {% if item.product.discount_percentage > 0 %}
-                                <span class="text-decoration-line-through ms-1">₹{{ item.product.price }}</span>
+                                <span class="text-decoration-line-through ms-1">Rs.{{ item.product.price }}</span>
                                 {% endif %}
                             </div>
                         </div>
 
-                        <!-- Qty Controls -->
                         <div class="d-flex align-items-center gap-1">
                             <form method="POST" action="{% url 'update_cart' item.id %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="decrease">
-                                <button type="submit" class="btn btn-outline-secondary btn-sm" style="width:32px;">−</button>
+                                <button type="submit" class="btn btn-outline-secondary btn-sm" style="width:32px;">-</button>
                             </form>
                             <span class="fw-bold px-2">{{ item.quantity }}</span>
                             <form method="POST" action="{% url 'update_cart' item.id %}">
@@ -51,12 +47,10 @@
                             </form>
                         </div>
 
-                        <!-- Item Total -->
                         <div class="fw-bold text-dark" style="min-width:70px;text-align:right;">
-                            ₹{{ item.get_item_total }}
+                            Rs.{{ item.get_item_total }}
                         </div>
 
-                        <!-- Remove -->
                         <form method="POST" action="{% url 'remove_from_cart' item.id %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm text-danger p-1" title="Remove">
@@ -68,7 +62,6 @@
                 </div>
             </div>
 
-            <!-- Clear Cart -->
             <div class="mt-3 d-flex justify-content-between align-items-center">
                 <a href="{% url 'shop' %}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i> Continue Shopping
@@ -83,38 +76,32 @@
             </div>
         </div>
 
-        <!-- Order Summary -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 p-4">
                 <h6 class="fw-bold mb-4">Order Summary</h6>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Subtotal</span>
-                    <span class="fw-semibold">₹{{ subtotal }}</span>
+                    <span class="text-muted">Product Gross</span>
+                    <span class="fw-semibold">Rs.{{ gross_total }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">CGST + SGST</span>
+                    <span class="fw-semibold">Rs.{{ tax_total }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Delivery</span>
-                    <span class="fw-semibold">
-                        {% if delivery == 0 %}<span class="text-success">Free</span>{% else %}₹{{ delivery }}{% endif %}
-                    </span>
+                    <span class="fw-semibold">Rs.{{ delivery }}</span>
                 </div>
-                {% if delivery > 0 %}
                 <div class="alert alert-light border py-2 px-3 mb-2 small text-muted">
-                    Add ₹{{ 999|add:"-"|add:subtotal }} more for free delivery
+                    Fixed delivery charge of Rs.699 is applied to every order.
                 </div>
-                {% endif %}
                 <hr>
                 <div class="d-flex justify-content-between mb-4">
                     <span class="fw-bold fs-5">Total</span>
-                    <span class="fw-bold fs-5">₹{{ total }}</span>
+                    <span class="fw-bold fs-5">Rs.{{ total }}</span>
                 </div>
                 <a href="{% url 'checkout' %}" class="btn btn-dark w-100 fw-semibold">
                     <i class="bi bi-bag-check me-1"></i> Proceed to Checkout
                 </a>
-                {% if delivery == 0 %}
-                <div class="text-center mt-2 text-success small">
-                    <i class="bi bi-truck me-1"></i> Free delivery applied!
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>

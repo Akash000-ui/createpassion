@@ -1,11 +1,57 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 from django.shortcuts import redirect
 from django.contrib import messages
 
 
 # ─── Order Number Generator ───────────────────────────────────────────────────
+
+FIXED_DELIVERY_CHARGE = Decimal('699.00')
+CGST_RATE = Decimal('0.06')
+SGST_RATE = Decimal('0.06')
+MONEY_QUANT = Decimal('0.01')
+
+
+def money(value):
+    return Decimal(value).quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
+
+
+def calculate_line_tax(gross_amount):
+    gross = money(gross_amount)
+    cgst = money(gross * CGST_RATE)
+    sgst = money(gross * SGST_RATE)
+    return {
+        'cgst': cgst,
+        'sgst': sgst,
+        'total_tax': money(cgst + sgst),
+        'net_amount': money(gross + cgst + sgst),
+    }
+
+
+def calculate_cart_totals(items):
+    product_gross_total = Decimal('0.00')
+    tax_total = Decimal('0.00')
+
+    for item in items:
+        gross_amount = money(item.get_item_total())
+        taxes = calculate_line_tax(gross_amount)
+        product_gross_total += gross_amount
+        tax_total += taxes['total_tax']
+
+    product_gross_total = money(product_gross_total)
+    tax_total = money(tax_total)
+    product_net_total = money(product_gross_total + tax_total)
+
+    return {
+        'subtotal': product_net_total,
+        'gross_total': product_gross_total,
+        'tax_total': tax_total,
+        'delivery': FIXED_DELIVERY_CHARGE,
+        'total': money(product_net_total + FIXED_DELIVERY_CHARGE),
+    }
+
 
 def generate_order_number():
     """Generate a unique order number: ORD-YYYYMMDD-XXXX"""

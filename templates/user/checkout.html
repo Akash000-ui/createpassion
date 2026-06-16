@@ -8,8 +8,6 @@
   <form method="post" novalidate>
     {% csrf_token %}
     <div class="row g-4">
-
-      <!-- Left: Delivery Address -->
       <div class="col-lg-7">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-header bg-dark text-white fw-semibold">
@@ -19,13 +17,11 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                <input type="text" name="full_name" class="form-control"
-                       value="{{ user.get_full_name }}" required>
+                <input type="text" name="full_name" class="form-control" value="{{ user.get_full_name }}" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Mobile Number <span class="text-danger">*</span></label>
-                <input type="text" name="mobile" class="form-control"
-                       value="{{ user.mobile }}" maxlength="15" required>
+                <input type="text" name="mobile" class="form-control" value="{{ user.mobile }}" maxlength="15" required>
               </div>
               <div class="col-12">
                 <label class="form-label fw-semibold">Address <span class="text-danger">*</span></label>
@@ -33,18 +29,15 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
-                <input type="text" name="city" class="form-control"
-                       value="{{ user.city|default:'' }}" required>
+                <input type="text" name="city" class="form-control" value="{{ user.city|default:'' }}" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-semibold">State <span class="text-danger">*</span></label>
-                <input type="text" name="state" class="form-control"
-                       value="{{ user.state|default:'' }}" required>
+                <input type="text" name="state" class="form-control" value="{{ user.state|default:'' }}" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-semibold">Pincode <span class="text-danger">*</span></label>
-                <input type="text" name="pincode" class="form-control"
-                       value="{{ user.pincode|default:'' }}" maxlength="10" required>
+                <input type="text" name="pincode" class="form-control" value="{{ user.pincode|default:'' }}" maxlength="10" required>
               </div>
               <div class="col-12">
                 <label class="form-label fw-semibold">Country</label>
@@ -54,7 +47,6 @@
           </div>
         </div>
 
-        <!-- Payment Method -->
         <div class="card shadow-sm border-0">
           <div class="card-header bg-dark text-white fw-semibold">
             <i class="bi bi-credit-card me-1"></i> Payment Method
@@ -64,14 +56,13 @@
               <input class="form-check-input" type="radio" name="payment_method" id="pmWallet" value="Wallet" checked>
               <label class="form-check-label fw-semibold" for="pmWallet">
                 <i class="bi bi-wallet2 me-1 text-primary"></i> Pay via Wallet
-                <small class="text-muted ms-2">(Balance: <strong>₹{{ wallet_balance }}</strong>)</small>
+                <small class="text-muted ms-2">(Balance: <strong>Rs.{{ wallet_balance }}</strong>)</small>
               </label>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right: Order Summary -->
       <div class="col-lg-5">
         <div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
           <div class="card-header bg-dark text-white fw-semibold">
@@ -87,37 +78,31 @@
                     Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}
                   </small>
                 </div>
-                <span class="fw-semibold text-nowrap">₹{{ item.get_item_total }}</span>
+                <span class="fw-semibold text-nowrap">Rs.{{ item.get_item_total }}</span>
               </li>
               {% endfor %}
             </ul>
             <div class="p-3 border-top">
               <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Subtotal</span>
-                <span>₹{{ subtotal }}</span>
+                <span class="text-muted">Product Gross</span>
+                <span>Rs.{{ gross_total }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">CGST + SGST</span>
+                <span>Rs.{{ tax_total }}</span>
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Delivery</span>
-                {% if delivery == 0 %}
-                  <span class="text-success fw-semibold">FREE</span>
-                {% else %}
-                  <span>₹{{ delivery }}</span>
-                {% endif %}
+                <span>Rs.{{ delivery }}</span>
               </div>
               <hr class="my-2">
               <div class="d-flex justify-content-between fw-bold fs-5">
                 <span>Total</span>
-                <span class="text-danger">₹{{ total }}</span>
+                <span class="text-danger">Rs.{{ total }}</span>
               </div>
-              {% if delivery == 0 %}
-              <p class="text-success small mt-2 mb-0">
-                <i class="bi bi-truck me-1"></i> Free delivery applied!
-              </p>
-              {% else %}
               <p class="text-muted small mt-2 mb-0">
-                <i class="bi bi-info-circle me-1"></i> Add ₹{{ 999|add:"-subtotal"|add:subtotal }} more for free delivery
+                <i class="bi bi-info-circle me-1"></i> Fixed delivery charge of Rs.699 is applied to every order.
               </p>
-              {% endif %}
             </div>
           </div>
           <div class="card-footer bg-light border-0 p-3">
@@ -130,7 +115,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </form>
 </div>
