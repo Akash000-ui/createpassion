@@ -1,7 +1,7 @@
 {% load static %}
 <!-- Announcement Bar -->
 {% comment %} <div class="announcement-bar d-none d-md-block">
-    <span>Fixed delivery Rs.699 on every order &nbsp;|&nbsp; Use code <a href="{% url 'shop' %}">VOID20</a> for 20% off your first order</span>
+    <span>Delivery: FC Rs.699, others Rs.199 &nbsp;|&nbsp; Use code <a href="{% url 'shop' %}">VOID20</a> for 20% off your first order</span>
 </div> {% endcomment %}
 
 <!-- Main Navbar -->
@@ -38,9 +38,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'user_events' %}active{% endif %}" href="{% url 'user_events' %}">Events</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'company_documents' %}active{% endif %}" href="{% url 'company_documents' %}">About Company</a>
                 </li>
             </ul>
 

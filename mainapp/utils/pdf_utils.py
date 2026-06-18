@@ -9,7 +9,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from mainapp.utils.common_utils import FIXED_DELIVERY_CHARGE, calculate_line_tax, money
+from mainapp.utils.common_utils import calculate_line_tax, money
 
 
 def _amount(value):
@@ -208,7 +208,7 @@ def build_order_invoice(order, items):
         Paragraph(f'<b>{_amount(totals["net"])}</b>', styles['TinyRight']),
     ])
 
-    delivery = money(FIXED_DELIVERY_CHARGE)
+    delivery = money(order.delivery_charge)
     final_amount = money(totals['net'] + delivery)
     rows.append([
         Paragraph('<b>Delivery Charges</b>', styles['TinyBold']),

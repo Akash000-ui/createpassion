@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.utils import timezone
 from mainapp.utils.common_utils import login_required_admin, login_required_user, paginate_queryset
 from mainapp.utils.validators import validate_image_file
-from mainapp.models import UserProfile, Order, KYC, BankDetails, WalletBalance
+from mainapp.models import UserProfile, Order, KYC, BankDetails, WalletBalance, CompanyDocument
 import openpyxl
+import calendar
 from decimal import Decimal, InvalidOperation
 
 
@@ -26,6 +27,14 @@ def _get_tree_user_ids(root_user):
     return ids
 
 
+def _order_product_sales(order_qs):
+    line_total = ExpressionWrapper(
+        F('items__price') * F('items__quantity'),
+        output_field=DecimalField(max_digits=14, decimal_places=2),
+    )
+    return order_qs.aggregate(total=Sum(line_total))['total'] or Decimal('0.00')
+
+
 # ─── User Dashboard ───────────────────────────────────────────────────────────
 
 @login_required_user
@@ -35,27 +44,37 @@ def user_dashboard(request):
     wallet = WalletBalance.objects.filter(user=user).first()
     kyc    = KYC.objects.filter(user=user).first()
     bank   = BankDetails.objects.filter(user=user).first()
+    company_documents = CompanyDocument.objects.exclude(google_drive_url='')
 
     # Tree sales
     now        = timezone.now()
     tree_ids   = _get_tree_user_ids(user)
     tree_qs    = Order.objects.filter(user_id__in=tree_ids).exclude(status='Cancelled')
 
-    daily_sales = tree_qs.filter(
-        order_date__date=now.date()
-    ).aggregate(total=Sum('subtotal'))['total'] or 0
+    daily_sales = _order_product_sales(tree_qs.filter(order_date__date=now.date()))
 
-    monthly_sales = tree_qs.filter(
+    monthly_sales = _order_product_sales(tree_qs.filter(
         order_date__year=now.year,
         order_date__month=now.month,
-    ).aggregate(total=Sum('subtotal'))['total'] or 0
+    ))
 
     prev_month      = now.month - 1 if now.month > 1 else 12
     prev_month_year = now.year if now.month > 1 else now.year - 1
-    prev_monthly_sales = tree_qs.filter(
+    prev_monthly_sales = _order_product_sales(tree_qs.filter(
         order_date__year=prev_month_year,
         order_date__month=prev_month,
-    ).aggregate(total=Sum('subtotal'))['total'] or 0
+    ))
+
+    gpg_required_amount = Decimal('2000.00')
+    gpg_booked_amount = _order_product_sales(Order.objects.filter(
+        user=user,
+        order_date__year=now.year,
+        order_date__month=now.month,
+    ).exclude(status='Cancelled'))
+    gpg_remaining_amount = max(Decimal('0.00'), gpg_required_amount - gpg_booked_amount)
+    gpg_completed = gpg_booked_amount >= gpg_required_amount
+    days_in_month = calendar.monthrange(now.year, now.month)[1]
+    gpg_days_left = max(0, days_in_month - now.day)
 
     return render(request, 'user/user_dashboard.html', {
         'profile':             user,
@@ -63,9 +82,15 @@ def user_dashboard(request):
         'wallet':              wallet,
         'kyc':                 kyc,
         'bank':                bank,
+        'company_documents':   company_documents,
         'daily_sales':         daily_sales,
         'monthly_sales':       monthly_sales,
         'prev_monthly_sales':  prev_monthly_sales,
+        'gpg_required_amount':  gpg_required_amount,
+        'gpg_booked_amount':    gpg_booked_amount,
+        'gpg_remaining_amount': gpg_remaining_amount,
+        'gpg_completed':        gpg_completed,
+        'gpg_days_left':        gpg_days_left,
     })
 
 
@@ -382,11 +407,24 @@ def update_profile(request):
         dob         = request.POST.get('dob', '').strip() or None
         gender      = request.POST.get('gender', '').strip() or None
         address     = request.POST.get('address', '').strip() or None
+        password    = request.POST.get('password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
         profile_pic = request.FILES.get('profile_pic')
 
         if not first_name or not last_name:
             messages.error(request, 'First name and last name are required.')
             return render(request, 'user/update_profile.html', {'profile': user})
+
+        if password or confirm_password:
+            if not password or not confirm_password:
+                messages.error(request, 'Enter both password and confirm password to change your password.')
+                return render(request, 'user/update_profile.html', {'profile': user})
+            if password != confirm_password:
+                messages.error(request, 'Password and confirm password do not match.')
+                return render(request, 'user/update_profile.html', {'profile': user})
+            if len(password) < 6:
+                messages.error(request, 'Password must be at least 6 characters.')
+                return render(request, 'user/update_profile.html', {'profile': user})
 
         # Check email uniqueness (exclude self)
         if email and UserProfile.objects.filter(email=email).exclude(id=user.id).exists():
@@ -415,6 +453,8 @@ def update_profile(request):
         user.dob     = dob
         user.gender  = gender
         user.address = address
+        if password:
+            user.set_password(password)
         user.save()
 
         # Update session name

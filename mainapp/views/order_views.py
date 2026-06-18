@@ -75,7 +75,7 @@ def checkout(request):
         messages.warning(request, 'Your cart is empty.')
         return redirect('view_cart')
 
-    totals = calculate_cart_totals(cart_items)
+    totals = calculate_cart_totals(cart_items, user)
     subtotal = totals['subtotal']
     delivery = totals['delivery']
     total    = totals['total']

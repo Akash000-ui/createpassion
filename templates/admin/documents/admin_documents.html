@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1">Company PDFs</h4>
-        <p class="text-muted mb-0 small">Manage Google Drive PDFs shown on the About Company page.</p>
+        <p class="text-muted mb-0 small">Manage Google Drive PDFs shown on the Promote Company page.</p>
     </div>
     <a href="{% url 'add_document' %}" class="btn btn-dark">
         <i class="bi bi-plus-circle me-1"></i> Add PDF
@@ -57,7 +57,7 @@
                     <td class="small text-muted">{{ doc.uploaded_date|date:"d M Y" }}</td>
                     <td>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'company_documents' %}?doc={{ doc.id }}" target="_blank" class="btn btn-sm btn-outline-dark">
+                            <a href="{{ doc.get_preview_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark">
                                 <i class="bi bi-eye"></i>
                             </a>
                             <a href="{{ doc.get_download_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark">

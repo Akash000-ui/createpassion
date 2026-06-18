@@ -21,7 +21,7 @@ def view_cart(request):
     user  = _get_user(request)
     items = Cart.objects.filter(user=user).select_related('product')
 
-    totals = calculate_cart_totals(items)
+    totals = calculate_cart_totals(items, user)
 
     context = {
         'items':      items,

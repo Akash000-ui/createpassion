@@ -6,5 +6,5 @@ urlpatterns = [
     path('admin/documents/add',                    document_views.add_document,    name='add_document'),
     path('admin/documents/<int:doc_id>/edit',      document_views.edit_document,   name='edit_document'),
     path('admin/documents/<int:doc_id>/delete',    document_views.delete_document, name='delete_document'),
-    path('about-company',                          document_views.company_documents, name='company_documents'),
+    path('promote-company',                        document_views.company_documents, name='company_documents'),
 ]

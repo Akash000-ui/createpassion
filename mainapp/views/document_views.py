@@ -1,8 +1,8 @@
 from urllib.parse import urlparse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from mainapp.utils.common_utils import login_required_admin, paginate_queryset
-from mainapp.models import CompanyDocument
+from mainapp.utils.common_utils import login_required_admin, login_required_user, paginate_queryset
+from mainapp.models import CompanyDocument, UserProfile
 
 
 TYPE_CHOICES = ['Policy', 'Certificate', 'Brochure', 'Manual', 'Legal', 'Other']
@@ -112,7 +112,9 @@ def delete_document(request, doc_id):
     return redirect('admin_documents')
 
 
+@login_required_user
 def company_documents(request):
+    user = get_object_or_404(UserProfile, id=request.session['user_id'])
     docs = CompanyDocument.objects.exclude(google_drive_url='')
     selected_id = request.GET.get('doc')
     selected_doc = None
@@ -121,6 +123,7 @@ def company_documents(request):
     if not selected_doc:
         selected_doc = docs.first()
     return render(request, 'user/company_documents.html', {
+        'profile': user,
         'documents': docs,
         'selected_doc': selected_doc,
     })

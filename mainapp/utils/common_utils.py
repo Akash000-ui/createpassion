@@ -8,7 +8,8 @@ from django.contrib import messages
 
 # ─── Order Number Generator ───────────────────────────────────────────────────
 
-FIXED_DELIVERY_CHARGE = Decimal('699.00')
+FC_DELIVERY_CHARGE = Decimal('699.00')
+DEFAULT_DELIVERY_CHARGE = Decimal('199.00')
 CGST_RATE = Decimal('0.06')
 SGST_RATE = Decimal('0.06')
 MONEY_QUANT = Decimal('0.01')
@@ -30,7 +31,11 @@ def calculate_line_tax(gross_amount):
     }
 
 
-def calculate_cart_totals(items):
+def get_delivery_charge(user=None):
+    return FC_DELIVERY_CHARGE if getattr(user, 'rank', None) == 'FC' else DEFAULT_DELIVERY_CHARGE
+
+
+def calculate_cart_totals(items, user=None):
     product_gross_total = Decimal('0.00')
     tax_total = Decimal('0.00')
 
@@ -44,12 +49,14 @@ def calculate_cart_totals(items):
     tax_total = money(tax_total)
     product_net_total = money(product_gross_total + tax_total)
 
+    delivery = get_delivery_charge(user)
+
     return {
         'subtotal': product_net_total,
         'gross_total': product_gross_total,
         'tax_total': tax_total,
-        'delivery': FIXED_DELIVERY_CHARGE,
-        'total': money(product_net_total + FIXED_DELIVERY_CHARGE),
+        'delivery': delivery,
+        'total': money(product_net_total + delivery),
     }
 
 

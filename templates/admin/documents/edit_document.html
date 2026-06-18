@@ -47,7 +47,7 @@
                         <button type="submit" class="btn btn-dark px-4">
                             <i class="bi bi-check2-circle me-1"></i> Save Changes
                         </button>
-                        <a href="{% url 'company_documents' %}?doc={{ document.id }}" target="_blank" class="btn btn-outline-dark">
+                        <a href="{{ document.get_preview_url }}" target="_blank" rel="noopener" class="btn btn-outline-dark">
                             <i class="bi bi-eye me-1"></i> View
                         </a>
                         <a href="{% url 'admin_documents' %}" class="btn btn-outline-secondary">Cancel</a>
