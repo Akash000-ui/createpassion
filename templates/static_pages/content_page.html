@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<section class="inner-page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item active">{{ page.title }}</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">{{ page.title }}</h2>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4 p-md-5">
+                        {% for section in page.sections %}
+                            <div class="{% if not forloop.last %}mb-4{% endif %}">
+                                {% if section.heading %}
+                                <h4 class="fw-bold mb-3">{{ section.heading }}</h4>
+                                {% endif %}
+
+                                {% for paragraph in section.paragraphs %}
+                                <p class="text-muted" style="line-height:1.85;">{{ paragraph }}</p>
+                                {% endfor %}
+
+                                {% if section.bullets %}
+                                <ol class="text-muted ps-3" style="line-height:1.85;">
+                                    {% for item in section.bullets %}
+                                    <li class="mb-2">{{ item }}</li>
+                                    {% endfor %}
+                                </ol>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,3 +1,4 @@
+{% if not request.session.user_id %}
 <footer class="footer-main pt-5 pb-0 mt-5">
     <div class="container">
         <div class="row g-5 pb-5">
@@ -7,47 +8,35 @@
                 <div class="footer-brand mb-3">CREATE <span>PASSION</span></div>
                 <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; max-width:280px; line-height:1.8;">
                     At CREATE PASSION we believe that fashion is not just about clothing; it's a statement of style, personality, and confidence. We are a leading fashion brand that caters to both men and women, offering a wide range of clothing and accessories to suit every taste and occasion.                </p>
-                <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:14px 18px; border:1px solid rgba(255,255,255,0.08);">
-                    <small style="color:rgba(255,255,255,0.4); font-size:0.7rem; letter-spacing:1px; text-transform:uppercase;">We Accept</small>
-                    <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">VISA</span>
-                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">MASTERCARD</span>
-                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">UPI</span>
-                        <span style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:4px;">NET BANKING</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- Quick Links -->
+            <!-- Company Links -->
             <div class="col-lg-2 col-6">
-                <h6>Shop</h6>
-                <a href="{% url 'shop' %}">All Products</a>
-                <a href="{% url 'shop' %}?gender=Men">Men's</a>
-                <a href="{% url 'shop' %}?gender=Women">Women's</a>
-                <a href="{% url 'shop' %}?gender=Accessories">Accessories</a>
-                <a href="{% url 'shop' %}?featured=1">Featured</a>
-                <a href="{% url 'shop' %}?trending=1">Trending</a>
+                <h6>Company</h6>
+                <a href="{% url 'static_page' 'about-us' %}">about us</a>
+                <a href="{% url 'static_page' 'company-policy' %}">company policy</a>
+                <a href="{% url 'static_page' 'terms-and-conditions' %}">terms and conditions</a>
+                <a href="{% url 'static_page' 'return-and-refund' %}">return and refund</a>
+                <a href="{% url 'static_page' 'shipping-policy' %}">shipping policy</a>
             </div>
 
-            <!-- Customer Service -->
+            <!-- Policy Links -->
             <div class="col-lg-2 col-6">
-                <h6>Account</h6>
-                <a href="{% url 'user_register' %}">Register</a>
-                <a href="{% url 'user_login' %}">Login</a>
-                <a href="{% url 'user_orders' %}">My Orders</a>
-                <a href="{% url 'view_wishlist' %}">Wishlist</a>
-                <a href="{% url 'user_wallet' %}">Wallet</a>
-                <a href="{% url 'user_dashboard' %}">Dashboard</a>
+                <h6>Policies</h6>
+                <a href="{% url 'static_page' 'unauthorized-sales-and-false-information' %}">unauthorized sales and false information</a>
+                <a href="{% url 'static_page' 'disclaimer' %}">disclaimer</a>
+                <a href="{% url 'static_page' 'licience-transfer' %}">licience transfer</a>
+                <a href="{% url 'static_page' 'faq' %}">Frequently Asked Questions</a>
             </div>
 
             <!-- Contact -->
             <div class="col-lg-4 col-md-6">
-                <h6>Get in Touch</h6>
+                <h6>Contact</h6>
                 <div class="d-flex gap-3 mb-3" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
-                    <i class="bi bi-geo-alt-fill" style="color:var(--accent); margin-top:2px; flex-shrink:0;"></i>
-                    <span>8-1-199/2/P, Sy.No.77, Raidarga, Gachibowli, Hyderabad, Telangana.
+                    {% comment %} <i class="bi bi-geo-alt-fill" style="color:var(--accent); margin-top:2px; flex-shrink:0;"></i> {% endcomment %}
+                    {% comment %} <span>8-1-199/2/P, Sy.No.77, Raidarga, Gachibowli, Hyderabad, Telangana. {% endcomment %}
 
-Building name : HIGH MARK CHAMBER</span>
+{% comment %} Building name : HIGH MARK CHAMBER</span> {% endcomment %}
                 </div>
                 <div class="d-flex gap-3 mb-3" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
                     <i class="bi bi-telephone-fill" style="color:var(--accent); flex-shrink:0;"></i>
@@ -57,10 +46,10 @@ Building name : HIGH MARK CHAMBER</span>
                     <i class="bi bi-envelope-fill" style="color:var(--accent); flex-shrink:0;"></i>
                     <span>info@createpassion.in</span>
                 </div>
-                <div class="d-flex gap-3 mb-4" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
+                {% comment %} <div class="d-flex gap-3 mb-4" style="color:rgba(255,255,255,0.55); font-size:0.875rem;">
                     <i class="bi bi-clock-fill" style="color:var(--accent); flex-shrink:0;"></i>
                     <span>Mon–Sat: 9AM – 6PM IST</span>
-                </div>
+                </div> {% endcomment %}
             </div>
 
         </div><!-- /row -->
@@ -71,12 +60,8 @@ Building name : HIGH MARK CHAMBER</span>
             <span style="color:rgba(255,255,255,0.35); font-size:0.8rem;">
                 &copy; {% now "Y" %} CREATE PASSION (OPC) PRIVATE LIMITED. All rights reserved.
             </span>
-            <div class="d-flex gap-4">
-                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Privacy Policy</a>
-                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Terms of Service</a>
-                <a href="#" style="color:rgba(255,255,255,0.35); font-size:0.78rem; text-decoration:none; transition:color 0.2s;">Shipping Policy</a>
-            </div>
         </div>
 
     </div>
 </footer>
+{% endif %}

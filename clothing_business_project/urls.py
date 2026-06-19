@@ -47,6 +47,8 @@ urlpatterns = [
     path('', include('mainapp.urls.message_urls')),
     # Reports
     path('', include('mainapp.urls.report_urls')),
+    # Static Pages
+    path('', include('mainapp.urls.static_pages_urls')),
 ]
 
 if settings.DEBUG:
