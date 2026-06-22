@@ -4,8 +4,6 @@ Django settings for clothing_business_project project.
 
 from pathlib import Path
 import os
-import dj_database_url
-from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,29 +68,12 @@ WSGI_APPLICATION = 'clothing_business_project.wsgi.application'
 
 
 # ── Database ──────────────────────────────────────────────────────────────────
-DATABASE_URL = os.environ.get('DATABASE_URL')
-USE_SQLITE = os.environ.get('USE_SQLITE', 'False') == 'True'
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    if DEBUG or USE_SQLITE:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-    else:
-        raise ImproperlyConfigured(
-            'DATABASE_URL is required when DEBUG=False unless USE_SQLITE=True. '
-            'Set USE_SQLITE=True only for VPS/local deployments that intentionally use SQLite.'
-        )
+}
 
 
 # ── Password validation ───────────────────────────────────────────────────────
