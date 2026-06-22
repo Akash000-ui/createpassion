@@ -20,6 +20,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+HOSTINGER_HOST = os.environ.get('HOSTINGER_HOST', '').strip()
+if HOSTINGER_HOST:
+    ALLOWED_HOSTS.extend([host.strip() for host in HOSTINGER_HOST.split(',') if host.strip()])
 
 
 # ── Apps ──────────────────────────────────────────────────────────────────────
@@ -68,6 +71,7 @@ WSGI_APPLICATION = 'clothing_business_project.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASE_URL = os.environ.get('DATABASE_URL')
+USE_SQLITE = os.environ.get('USE_SQLITE', 'False') == 'True'
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
@@ -77,17 +81,18 @@ if DATABASE_URL:
         )
     }
 else:
-    if not DEBUG:
-        raise ImproperlyConfigured(
-            'DATABASE_URL is required when DEBUG=False. '
-            'Configure the Render PostgreSQL Internal Database URL.'
-        )
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    if DEBUG or USE_SQLITE:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
         }
-    }
+    else:
+        raise ImproperlyConfigured(
+            'DATABASE_URL is required when DEBUG=False unless USE_SQLITE=True. '
+            'Set USE_SQLITE=True only for VPS/local deployments that intentionally use SQLite.'
+        )
 
 
 # ── Password validation ───────────────────────────────────────────────────────
