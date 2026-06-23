@@ -20,6 +20,41 @@
             <div class="col-lg-9">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4 p-md-5">
+                        {% if slug == 'faq' %}
+                        <div class="accordion" id="faqAccordion">
+                            {% for section in page.sections %}
+                            <div class="accordion-item border rounded-3 mb-3 overflow-hidden">
+                                <h3 class="accordion-header" id="faqHeading{{ forloop.counter }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-semibold" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#faqCollapse{{ forloop.counter }}"
+                                            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                                            aria-controls="faqCollapse{{ forloop.counter }}">
+                                        {{ section.heading }}
+                                    </button>
+                                </h3>
+                                <div id="faqCollapse{{ forloop.counter }}"
+                                     class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                     aria-labelledby="faqHeading{{ forloop.counter }}"
+                                     data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        {% for paragraph in section.paragraphs %}
+                                        <p class="text-muted mb-2" style="line-height:1.85;">{{ paragraph }}</p>
+                                        {% endfor %}
+
+                                        {% if section.bullets %}
+                                        <ol class="text-muted ps-3 mb-0" style="line-height:1.85;">
+                                            {% for item in section.bullets %}
+                                            <li class="mb-2">{{ item }}</li>
+                                            {% endfor %}
+                                        </ol>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
                         {% for section in page.sections %}
                             <div class="{% if not forloop.last %}mb-4{% endif %}">
                                 {% if section.heading %}
@@ -39,6 +74,7 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

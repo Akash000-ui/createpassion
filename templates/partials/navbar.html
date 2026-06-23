@@ -33,9 +33,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'shop' %}?gender=Women">Women</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'shop' %}?gender=Accessories">Accessories</a>
-                </li>
+                {% comment %} Accessories hidden from UI for now. {% endcomment %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'user_events' %}active{% endif %}" href="{% url 'user_events' %}">Events</a>
                 </li>

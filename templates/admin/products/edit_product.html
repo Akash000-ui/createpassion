@@ -59,7 +59,7 @@
                         <option value="Unisex" {% if product.gender == "Unisex" %}selected{% endif %}>Unisex</option>
                         <option value="Men"    {% if product.gender == "Men" %}selected{% endif %}>Men</option>
                         <option value="Women"  {% if product.gender == "Women" %}selected{% endif %}>Women</option>
-                        <option value="Accessories" {% if product.gender == "Accessories" %}selected{% endif %}>Accessories</option>
+                        {% comment %} <option value="Accessories" {% if product.gender == "Accessories" %}selected{% endif %}>Accessories</option> {% endcomment %}
                     </select>
                 </div>
                 <div class="col-12">

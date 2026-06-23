@@ -95,7 +95,7 @@ def delete_category(request, cat_id):
 # ─────────────────────── PRODUCTS ───────────────────────
 
 SIZE_LIST = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '28', '30', '32', '34', '36', '38', '40']
-PRODUCT_SECTIONS = ['Men', 'Women', 'Unisex', 'Accessories']
+PRODUCT_SECTIONS = ['Men', 'Women', 'Unisex']  # Accessories hidden from UI for now.
 
 
 @login_required_admin

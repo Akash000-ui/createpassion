@@ -368,7 +368,120 @@ PAGE_CONTENT = {
             },
         ],
     },
-    'faq': {'title': 'Frequently Asked Questions', 'sections': [{'paragraphs': ['Content will be added soon.']}]},
+    'faq': {
+        'title': 'Frequently Asked Questions',
+        'sections': [
+            {
+                'heading': '1. What is CREATE PASSION?',
+                'paragraphs': [
+                    "CREATE PASSION (OPC) PRIVATE LIMITED is a direct selling company and India's first co-commerce platform offering fashion and lifestyle products directly to consumers. CREATE PASSION is a registered brand owned by CREATE PASSION (OPC) PRIVATE LIMITED, registered under the Companies Act in 2023. The company promotes entrepreneurship and owns brands such as Classic and Loyal, and CREATE PASSION GLOBAL FASHION Wear.",
+                ],
+            },
+            {
+                'heading': '2. How can you contact CREATE PASSION?',
+                'paragraphs': [
+                    'Customers can contact CREATE PASSION through Chat, Email, or their registered phone number between 9:30 AM and 6:30 PM, Monday to Saturday. Users can log in using their FCID and use the chat option.',
+                ],
+            },
+            {
+                'heading': '3. Does CREATE PASSION follow Direct Selling Rules 2021?',
+                'paragraphs': [
+                    'Yes. CREATE PASSION complies with the Consumer Protection (Direct Selling) Rules, 2021 issued by the Ministry of Consumer Affairs, Food and Public Distribution and incorporates all required guidelines and regulations.',
+                ],
+            },
+            {
+                'heading': '4. Does CREATE PASSION provide Job Opportunities?',
+                'paragraphs': [
+                    'No. CREATE PASSION provides business opportunities through direct selling and does not offer employment or jobs. The company takes strict action against distributors who misrepresent the business opportunity as a job.',
+                ],
+            },
+            {
+                'heading': '5. Can you quit CREATE PASSION?',
+                'paragraphs': [
+                    'Yes. Members are never obligated to stay with CREATE PASSION and can leave whenever they choose. The company recognizes that the business may not be suitable for everyone.',
+                ],
+            },
+            {
+                'heading': '6. Does CREATE PASSION allow Refund/Return?',
+                'paragraphs': [
+                    'Yes. CREATE PASSION has a Refund and Return Policy that allows distributors to request refunds within the product return window specified on the product page. Refunds are processed back to the original payment source.',
+                ],
+            },
+            {
+                'heading': '7. What action does CREATE PASSION take against unethical activity by any distributor?',
+                'paragraphs': [
+                    "CREATE PASSION conducts a full investigation into unethical activities. If wrongdoing is confirmed, the distributor's FCID is disabled regardless of rank after completing the internal inquiry process.",
+                ],
+            },
+            {
+                'heading': '8. Do people in CREATE PASSION focus more on recruiting than selling products?',
+                'paragraphs': [
+                    'No. Product sales are the primary focus of the business. Distributors can only earn income when products are sold. Recruiting alone does not generate income. Additionally, there are no fees to join or conduct business with CREATE PASSION.',
+                ],
+            },
+            {
+                'heading': '9. What are the internal compliances of CREATE PASSION?',
+                'paragraphs': [
+                    'CREATE PASSION has an Internal Compliance Team responsible for corporate governance and regulatory compliance. Key compliance measures include:',
+                ],
+                'bullets': [
+                    'Video Verification for KYC and business understanding.',
+                    'Grievance Redressal Team for dispute resolution.',
+                    'Online Compliance Team to monitor unethical activities such as fake job postings and false online content.',
+                ],
+            },
+            {
+                'heading': '10. Is CREATE PASSION a Pyramid Scheme?',
+                'paragraphs': [
+                    'No. CREATE PASSION follows the Consumer Protection (Direct Selling) Rules, 2021. Pyramid schemes are illegal in India, and CREATE PASSION operates as a legitimate direct selling company.',
+                ],
+            },
+            {
+                'heading': '11. Is CREATE PASSION a Scam?',
+                'paragraphs': [
+                    'No. CREATE PASSION is a legally registered company operating under Indian law and conducts direct selling business according to government guidelines. The company has been promoting its products and business opportunity since 2023.',
+                ],
+            },
+            {
+                'heading': '12. Does CREATE PASSION take money for food and accommodation?',
+                'paragraphs': [
+                    'No. CREATE PASSION does not provide or charge for food and accommodation and has not authorized anyone to do so on its behalf.',
+                ],
+            },
+            {
+                'heading': '13. Does CREATE PASSION take any training fees / registration fees?',
+                'paragraphs': [
+                    'No. Registration and training with CREATE PASSION are completely free. The company takes action against distributors who ask for money on its behalf.',
+                ],
+            },
+            {
+                'heading': '14. Does CREATE PASSION have registered offices in different cities?',
+                'paragraphs': [
+                    'No. CREATE PASSION has only one registered office, located at:',
+                    'CREATE PASSION OPC PRIVATE LIMITED',
+                    '8-1-199/2/P, Sy.No.77, Raidarga, Gachibowli, Hyderabad, Telangana.',
+                ],
+            },
+            {
+                'heading': '15. Why do people post negative stuff about CREATE PASSION?',
+                'paragraphs': [
+                    'According to CREATE PASSION, while many distributors have positive experiences, some individuals who do not achieve their desired level of success may spread negative opinions about the company.',
+                ],
+            },
+            {
+                'heading': '16. Does CREATE PASSION have real customers?',
+                'paragraphs': [
+                    'Yes. CREATE PASSION states that its products are purchased and sold through individual business owners and that it maintains a strong and active customer base.',
+                ],
+            },
+            {
+                'heading': '17. Will CREATE PASSION shut down in the near future?',
+                'paragraphs': [
+                    'According to CREATE PASSION, the company has operated since 2023, continues to grow, and expects further success and expansion in the future.',
+                ],
+            },
+        ],
+    },
 }
 
 
