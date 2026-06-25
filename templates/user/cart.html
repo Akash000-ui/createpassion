@@ -17,8 +17,13 @@
                     {% for item in items %}
                     <div class="d-flex align-items-center gap-3 p-3 {% if not forloop.last %}border-bottom{% endif %}">
                         <a href="{% url 'product_detail' prod_id=item.product.id %}">
-                            <img src="{{ item.product.main_image.url }}" class="rounded-3"
-                                 style="width:80px;height:80px;object-fit:cover;" alt="{{ item.product.name }}">
+                            {% if item.product.main_image %}
+                            <img src="{{ item.product.main_image.url }}" class="rounded-3 border"
+                                 style="width:88px;height:88px;object-fit:cover;flex-shrink:0;" alt="{{ item.product.name }}">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=200&q=80&auto=format&fit=crop" class="rounded-3 border"
+                                 style="width:88px;height:88px;object-fit:cover;flex-shrink:0;" alt="{{ item.product.name }}">
+                            {% endif %}
                         </a>
 
                         <div class="flex-grow-1">

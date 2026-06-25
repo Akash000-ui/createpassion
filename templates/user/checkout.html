@@ -71,12 +71,21 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               {% for item in cart_items %}
-              <li class="list-group-item d-flex justify-content-between align-items-start py-3">
-                <div class="me-2">
-                  <div class="fw-semibold">{{ item.product.name }}</div>
-                  <small class="text-muted">
-                    Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}
-                  </small>
+              <li class="list-group-item d-flex justify-content-between align-items-start gap-3 py-3">
+                <div class="d-flex gap-3 align-items-start me-2">
+                  {% if item.product.main_image %}
+                  <img src="{{ item.product.main_image.url }}" class="rounded-3 border"
+                       style="width:64px;height:64px;object-fit:cover;flex-shrink:0;" alt="{{ item.product.name }}">
+                  {% else %}
+                  <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=160&q=80&auto=format&fit=crop" class="rounded-3 border"
+                       style="width:64px;height:64px;object-fit:cover;flex-shrink:0;" alt="{{ item.product.name }}">
+                  {% endif %}
+                  <div>
+                    <div class="fw-semibold">{{ item.product.name }}</div>
+                    <small class="text-muted">
+                      Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}
+                    </small>
+                  </div>
                 </div>
                 <span class="fw-semibold text-nowrap">Rs.{{ item.get_item_total }}</span>
               </li>
