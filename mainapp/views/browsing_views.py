@@ -16,10 +16,21 @@ def shop(request):
     # Filters
     category_id = request.GET.get('category')
     gender      = request.GET.get('gender')
-    min_price   = request.GET.get('min_price')
-    max_price   = request.GET.get('max_price')
+    color       = request.GET.get('color')
+    size        = request.GET.get('size')
     sort        = request.GET.get('sort', 'latest')
     q           = request.GET.get('q', '').strip()
+
+    colors = (
+        Product.objects
+        .filter(stock__gt=0)
+        .exclude(color__isnull=True)
+        .exclude(color='')
+        .order_by('color')
+        .values_list('color', flat=True)
+        .distinct()
+    )
+    sizes = ProductSize.SIZE_CHOICES
 
     if q:
         products = products.filter(name__icontains=q)
@@ -27,16 +38,10 @@ def shop(request):
         products = products.filter(category_id=category_id)
     if gender:
         products = products.filter(gender=gender)
-    if min_price:
-        try:
-            products = products.filter(price__gte=float(min_price))
-        except ValueError:
-            pass
-    if max_price:
-        try:
-            products = products.filter(price__lte=float(max_price))
-        except ValueError:
-            pass
+    if color:
+        products = products.filter(color__iexact=color)
+    if size:
+        products = products.filter(sizes__size=size)
 
     sort_map = {
         'latest':      '-created_at',
@@ -44,7 +49,7 @@ def shop(request):
         'price_desc':  '-price',
         'name':        'name',
     }
-    products = products.order_by(sort_map.get(sort, '-created_at'))
+    products = products.distinct().order_by(sort_map.get(sort, '-created_at'))
 
     # Wishlist IDs for logged-in user
     wishlist_ids = []
@@ -59,12 +64,14 @@ def shop(request):
     context = {
         'page_obj':    page_obj,
         'categories':  ProductCategory.objects.filter(status=True),
+        'colors':      colors,
+        'sizes':       sizes,
         'wishlist_ids': wishlist_ids,
         'selected_category': category_id,
         'selected_gender':   gender,
+        'selected_color':    color,
+        'selected_size':     size,
         'selected_sort':     sort,
-        'min_price':   min_price or '',
-        'max_price':   max_price or '',
         'q':           q,
         'cart_count':  get_cart_count_safe(request),
     }

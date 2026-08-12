@@ -8,7 +8,7 @@ from mainapp.utils.validators import validate_kyc_image
 @login_required_admin
 def admin_kyc_list(request):
     status  = request.GET.get('status', '')
-    kyc_qs  = KYC.objects.select_related('user').all()
+    kyc_qs  = KYC.objects.select_related('user').order_by('-submitted_at')
     if status:
         kyc_qs = kyc_qs.filter(approval_status=status)
     page_obj = paginate_queryset(request, kyc_qs, per_page=15)

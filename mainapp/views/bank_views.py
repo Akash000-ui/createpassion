@@ -7,7 +7,7 @@ from mainapp.models import BankDetails, UserProfile
 @login_required_admin
 def admin_bank_list(request):
     status  = request.GET.get('status', '')
-    bank_qs = BankDetails.objects.select_related('user').all()
+    bank_qs = BankDetails.objects.select_related('user').order_by('-submitted_at')
     if status:
         bank_qs = bank_qs.filter(approval_status=status)
     page_obj = paginate_queryset(request, bank_qs, per_page=15)
