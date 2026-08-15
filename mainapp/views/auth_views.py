@@ -1,6 +1,12 @@
-from django.shortcuts import render, redirect
+import logging
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
+from django.core import signing
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from mainapp.models import UserProfile, WalletBalance, ProductCategory, Product
 from mainapp.forms.auth_forms import (
@@ -8,6 +14,10 @@ from mainapp.forms.auth_forms import (
     ForgotPasswordForm, ResetPasswordForm,
 )
 from mainapp.utils.common_utils import already_logged_in_user, login_required_user
+
+
+logger = logging.getLogger(__name__)
+PASSWORD_RESET_SALT = 'mainapp.password-reset'
 
 
 # ─── Home Page ────────────────────────────────────────────────────────────────
@@ -163,19 +173,51 @@ def admin_logout(request):
 
 @already_logged_in_user
 def forgot_password(request):
-    """Step 1: enter email to verify account."""
+    """Send a password reset link to a registered user's email."""
     form = ForgotPasswordForm()
 
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email'].lower().strip()
-            if UserProfile.objects.filter(email=email, is_admin=False).exists():
-                # Store email in session to use in reset step
-                request.session['reset_email'] = email
-                return redirect('reset_password')
-            else:
-                messages.error(request, 'No account found with this email address.')
+            user = UserProfile.objects.filter(
+                email__iexact=email,
+                is_admin=False,
+                is_active=True,
+            ).first()
+
+            if user:
+                token = signing.dumps({'user_id': user.id}, salt=PASSWORD_RESET_SALT)
+                reset_url = request.build_absolute_uri(
+                    reverse('reset_password', kwargs={'token': token})
+                )
+                subject = 'Reset your CREATE PASSION password'
+                message = (
+                    f'Hello {user.first_name},\n\n'
+                    'We received a request to reset your CREATE PASSION account password.\n'
+                    f'Use this link to set a new password:\n{reset_url}\n\n'
+                    f'This link expires in {settings.PASSWORD_RESET_TIMEOUT // 60} minutes.\n'
+                    'If you did not request this, you can ignore this email.\n\n'
+                    'CREATE PASSION'
+                )
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                except Exception:
+                    logger.exception('Failed to send password reset email to user_id=%s', user.id)
+                    messages.error(request, 'Unable to send reset email right now. Please try again later.')
+                    return redirect('forgot_password')
+
+            messages.success(
+                request,
+                'If an active account exists for that email, a password reset link has been sent.',
+            )
+            return redirect('user_login')
 
     return render(request, 'user/forgot_password.html', {'form': form})
 
@@ -183,11 +225,28 @@ def forgot_password(request):
 # ─── Reset Password ───────────────────────────────────────────────────────────
 
 @already_logged_in_user
-def reset_password(request):
-    """Step 2: set a new password after email verification."""
-    reset_email = request.session.get('reset_email')
-    if not reset_email:
-        messages.warning(request, 'Please start the password reset process again.')
+def reset_password(request, token=None):
+    """Set a new password using a signed reset token."""
+    if not token:
+        messages.warning(request, 'Please use the reset link sent to your email.')
+        return redirect('forgot_password')
+
+    try:
+        data = signing.loads(
+            token,
+            salt=PASSWORD_RESET_SALT,
+            max_age=settings.PASSWORD_RESET_TIMEOUT,
+        )
+        user = UserProfile.objects.get(
+            id=data.get('user_id'),
+            is_admin=False,
+            is_active=True,
+        )
+    except signing.SignatureExpired:
+        messages.error(request, 'This password reset link has expired. Please request a new one.')
+        return redirect('forgot_password')
+    except (signing.BadSignature, UserProfile.DoesNotExist, TypeError, ValueError):
+        messages.error(request, 'Invalid password reset link. Please request a new one.')
         return redirect('forgot_password')
 
     form = ResetPasswordForm()
@@ -195,19 +254,13 @@ def reset_password(request):
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
-            try:
-                user = UserProfile.objects.get(email=reset_email, is_admin=False)
-                user.password = make_password(form.cleaned_data['new_password'])
-                user.save()
-                request.session.pop('reset_email', None)
-                messages.success(request, 'Password reset successfully. Please login.')
-                return redirect('user_login')
-            except UserProfile.DoesNotExist:
-                messages.error(request, 'User not found. Please try again.')
-                return redirect('forgot_password')
+            user.password = make_password(form.cleaned_data['new_password'])
+            user.save(update_fields=['password', 'updated_at'])
+            messages.success(request, 'Password reset successfully. Please login.')
+            return redirect('user_login')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, error)
 
-    return render(request, 'user/reset_password.html', {'form': form, 'email': reset_email})
+    return render(request, 'user/reset_password.html', {'form': form, 'email': user.email})

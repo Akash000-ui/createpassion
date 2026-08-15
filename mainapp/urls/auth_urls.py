@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin_login',      admin_login,    name='admin_login'),
     path('admin_logout',     admin_logout,   name='admin_logout'),
     path('forgot_password',  forgot_password, name='forgot_password'),
-    path('reset_password',   reset_password,  name='reset_password'),
+    path('reset_password',   reset_password,  name='reset_password_start'),
+    path('reset_password/<path:token>', reset_password, name='reset_password'),
 ]
 

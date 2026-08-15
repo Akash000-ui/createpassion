@@ -26,7 +26,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-semibold d-flex justify-content-between">
                                     Password
-                                    {% comment %} <a href="/forgot_password" class="text-muted small text-decoration-none">Forgot Password?</a> {% endcomment %}
+                                    <a href="{% url 'forgot_password' %}" class="text-muted small text-decoration-none">Forgot Password?</a>
                                 </label>
                                 <div class="input-group">
                                     {{ form.password }}
